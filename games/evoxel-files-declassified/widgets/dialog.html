@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<style type="text/css">
+			.container {
+			  width: 100%;
+			  height: 100%;
+			  display: flex;
+			  justify-content: center;
+			}
+			
+			.background {
+				opacity: 0.5;
+			}
+
+			.dialog-container {
+			  align-self: flex-end;
+			  position: relative;
+			  width: 991px;
+			  height: 220px;
+			}
+
+			.text-container {
+			  text-stroke: 1px blue;
+			  color: white;
+			  position: absolute;
+			  top: 0;
+			  padding-left: 16px;
+			  white-space: pre-wrap;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="container">
+			<!-- data-bind-value outputs the contents of the "exampleModel" attribute "data" -->
+			<div class="dialog-container">
+				<img class="background" alt="dialog" src="https://live.content.crayta.com/ui_image/f84afb1a-5180-4eb6-88ea-e1d21d8c9153_ui_image" />
+		        <div class="text-container">
+		          <h2 class="text" data-bind-value="{{data.text}}">123 123 123 123 1231 123123 123 1231 23123123 123 123 123 123 1231 123123 123 1231 23123123123 123 123 123 1231 123123 123 1231 23123123123 123 123 123 1231 123123 123 1231 23123123123 123 123 123 1231 123123 123 1231 23123123123 123 123 123 1231 123123 123 1231 23123123123 123 123 123 1231 123123 123 1231 23123123123 123 123 123 1231 123123 123 1231 23123123123 123 123 123 1231 123123 123 1231 23123123123 123 123 123 1231 123123 123 1231 23123123</h2>
+		        </div>
+			</div>
+		</div>
+
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				text: "Beep Boop"
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,187 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen"></default-asset-property>
+			<default-asset-property name="visible" value="true"></default-asset-property>
+			<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			
+
+  
+		    @font-face {
+		      font-family: Montserrat;
+		      src: url(https://content.crayta.com/fonts/Montserrat-Bold.ttf);
+		      font-weight: 700; 
+		      font-style: normal
+		    }
+		    
+		    @font-face {
+			  font-family: Montserrat;
+			  src: url(https://content.crayta.com/fonts/Montserrat-Regular.ttf);
+			  font-weight: 400; 
+			  font-style: normal
+			}
+
+		    .montserrat_bold {
+		      font-family: Montserrat;
+		      font-weight: 700; 
+		      font-style: normal
+		    }
+		    
+			body {
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				justify-content: flex-end;
+				font-family: Montserrat;
+				font-weight: 400;
+				
+			}
+			
+			.container {
+				margin-right: 5rem;
+				margin-top: 10rem;
+				width: 20vw;
+			}
+			
+			.header {
+				display: flex;
+				justify-content: center;
+				border: 1px solid black;
+				font-size: 2rem;
+				background-color: rgba(200, 100, 100, 0.75);
+				width: 100%;
+				font-family: Montserrat;
+				font-weight: 700;
+				color: black;
+			}
+			
+			.event-list {
+				font-size: 1.1rem;
+				margin-top: 2rem;
+				background-image: linear-gradient(to bottom, rgba(100, 100, 100, 05), rgba(0, 0, 0, 0));
+				color: white;
+				text-shadow: 0.5px 0.5px black;
+			}
+			
+			.event {
+				padding: 1rem;
+			}
+			
+			.event-title {
+				width: 100%;
+			}
+			
+			.time {
+				display: flex;
+				justify-content: space-between;
+				padding-right: 50%;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="container">
+			<div class="header">Crayta Cruiselines</div>
+			<div class="header" data-bind-value="{{data.time}}"></div>
+			<div class="header">
+				<span>Coins: </span>
+				<span data-bind-value="{{data.tickets}}"></span>
+			</div>
+			<div class="header">
+				<span>Decorations: </span>
+				<span data-bind-value="{{data.decoUnlocked}} + ' / ' + {{data.totalDeco}}"></span>
+			</div>
+			
+			<div class="event-list">
+				<div class="header">Active Events</div>
+				<div class="event" data-bind-for="event:{{data.activeEvents}}">
+					<div class="event-title" data-bind-value="{{event.name}}"></div>
+					<div class="time">
+						<div class="">Time left: </div>
+						<div class="" data-bind-value="{{event.timeLeft}}"></div>
+					</div>				
+				</div>
+			</div>
+			
+			<div class="event-list">
+				<div class="header">Upcoming Events</div>
+				<div class="event" data-bind-for="event:{{data.upcomingEvents}}">
+					<div class="event-title" data-bind-value="{{event.name}}"></div>
+					<div class="time">
+						<div class="">Starts at: </div>
+						<div class="" data-bind-value="{{event.startsAt}}"></div>
+					</div>
+					<div class="time" data-bind-if="{{event.totalMinutesUntil}} < 60">
+						<div class="">Time Until: </div>
+						<div class="" data-bind-value="{{event.timeUntil}}"></div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				time: "00:00",
+				tickets: 0,
+				upcomingEvents: [
+					{ startsAt: "00:00", timeUntil: "00:00", name: "!Test", totalMinutesUntil: 0 }
+				],
+				activeEvents: [
+					{ timeLeft: "12:00", name: "!Test" }
+				],
+				decoUnlocked: 0,
+				totalDeco: 20
+			});
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

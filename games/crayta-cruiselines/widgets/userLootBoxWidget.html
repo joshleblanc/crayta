@@ -1,0 +1,269 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen"></default-asset-property>
+			<default-asset-property name="visible" value="true"></default-asset-property>
+			<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			  
+		    @font-face {
+		      font-family: Montserrat;
+		      src: url(https://content.crayta.com/fonts/Montserrat-Bold.ttf);
+		      font-weight: 700; 
+		      font-style: normal
+		    }
+		    
+		    @font-face {
+			  font-family: Montserrat;
+			  src: url(https://content.crayta.com/fonts/Montserrat-Regular.ttf);
+			  font-weight: 400; 
+			  font-style: normal
+			}
+
+		    .montserrat_bold {
+		      font-family: Montserrat;
+		      font-weight: 700; 
+		      font-style: normal
+		    }
+		    
+			
+			body {
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-wrap: wrap;
+				color: white;
+				text-shadow: 2px 2px black;
+				font-family: Montserrat;
+			}
+			
+			.display {
+				position: relative;
+				width: 30%;
+				height: 12vh;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				background-color: rgba(175, 25, 25, 1);
+				box-shadow: 0px 0px 10px black;
+				border-radius: 50px;
+				margin-top: 0rem;
+			}
+			
+			.header {
+				font-size: 5rem;
+			}
+			
+			.footer {
+				font-size: 5rem;
+			}
+			
+			.sub-footer {
+				width: 100%;
+				text-align: center;
+				font-size: 3rem;
+			}
+			
+			.container {
+				width: calc(12vh - 1rem);		
+				flex: 1;
+				background-size: cover;
+				margin: 0.5rem;
+				border-radius: 50px;
+			}
+			
+			.hide {
+				visibility: hidden;
+			}
+			
+			.buttons {
+				display: flex;
+				width: 50vw;
+				justify-content: space-between;
+			}
+			
+			.button {
+				font-size: 4rem;
+				background-color: orange;
+				border-radius: 20px;
+				box-shadow: 10px 10px black;
+				border: none;
+				padding: 1rem;
+				font-family: Montserrat;
+				font-weight: 700;
+			}
+			
+			.button:hover {
+				background-color: white;
+				box-shadow: 10px 10px orange;
+			}
+			
+			.button.disabled {
+				opacity: 0.5;
+				
+			}
+			
+			.whitespace-pre {
+				white-space: pre;
+			}
+			
+			.display-title {
+				display: flex;
+				font-size: 2rem;
+			}
+			
+			.display-text {
+				font-size: 1.2rem;
+				flex-direction: column;
+				margin-left: 2rem;
+			}
+			
+			.display-subtitle {
+				text-shadow: none;
+				color: rgba(255, 255, 255, 0.75);
+			}
+			
+			.icon {
+				width: 100%;
+				height: 100%;
+			}
+			
+			.display-wrapper {
+				width: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 70vh;
+			}
+			
+			.money {
+				position: absolute;
+				font-size: 5rem;
+				left: 2rem;
+				top: 2rem;
+				display: flex;
+				font-family: "Monserrat";
+				text-shadow: 2px 2px black;
+				align-items: center;
+			}
+			
+			.money-icon {
+				margin-right: 1rem;
+				height: 5rem;
+				width: 5rem;
+				background-size: contain;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<!-- <div class="header" data-bind-class-toggle="hide:!{{data.revealed}}">You got a</div> --!>
+		<!-- <div class="footer" data-bind-value="{{data.name}}" data-bind-if="{{data.revealed}}">Beach Ball!</div> --!>
+		<div class="money">
+			<div class="money-icon" data-bind-style-background-image-url="{{data.moneyIcon}}"></div>
+			<div data-bind-value="{{data.money}}"></div>
+		</div>
+		
+		<div class="display-wrapper">
+			<div class="display" data-bind-class-toggle="hide:!{{data.revealed}}">
+				<div class="display-text">
+					<div class="display-title">
+						<span>You got a </span>
+						<span data-bind-value="{{data.name}}"></span>	
+					</div>
+					<div class="display-subtitle" data-bind-if="{{data.name}} !== '1 Coin'">Find this item in your room</div>
+				</div>
+				<div>
+					<div class="container">
+						<img class="icon" data-bind-src="{{data.icon}}"></img>
+					</div>	
+				</div>
+			</div>
+		</div>
+
+		
+		<div class="buttons" data-bind-if="!{{data.revealed}} && !{{data.revealing}}">
+			<button class="button" data-bind-class-toggle="disabled:{{data.money}} < {{data.price}}" data-bind-click="{{data.handleBuy()}}">
+				<span>Buy (</span>
+				<span data-bind-value="{{data.price}}"></span>
+				<span class="whitespace-pre"> coins)</span>
+			</button>
+			<button class="button" data-bind-click="{{data.handleClose()}}">Close</button>
+		</div>
+	
+		<script>
+			class SrcAttributeHandler {
+				update(element, src) {
+					element.src = src;
+				}
+			}
+			
+			engine.registerBindingAttribute("src", SrcAttributeHandler);
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				icon: "coui://assets/icons/52d4355f-b868-4d50-a3d6-c84d16699b20.png",
+				name: "!beachball",
+				revealed: false,
+				revealing: false,
+				money: 100,
+				price: 2,
+				moneyIcon: "coui://assets/icons/52d4355f-b868-4d50-a3d6-c84d16699b20.png",
+				handleClose: () => {
+					Crayta.callLua("Close")
+				},
+				handleBuy: () => {
+					Crayta.callLua("Buy")
+				}
+			});
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

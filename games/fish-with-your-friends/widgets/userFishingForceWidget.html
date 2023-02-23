@@ -1,0 +1,181 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<!--<property name="signTitle" type="text"></property>
+		<property name="signText" type="text"></property>
+		
+		<property name="showForceBar" type="boolean" default="true"></property>
+		-->
+		<property name="tickRate" type="number" default = 100 tooltip="Refresh rate of the widget (like Lua OnTick)"></property>
+		<property name="forceBarSpeed" type="number" tooltip="Bar movement speed per second" default = 100></property>
+		
+		<!--<property name="titleSize" type="number" default="4"></property>
+		<property name="textSize" type="number" default="2"></property>
+		-->
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.container {
+			width: 100%;
+			height: 100%;
+			//background: rgba(0, 0, 0, 0.75);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			font-size: 10rem;
+			color: white;
+		}
+		
+		.fishingForceContainer {
+			position: absolute;
+			top: 30%;
+			left: 30%;
+			width: 5rem;
+			height: 25rem;
+			
+			//border: 0.2rem solid green;
+			background: rgb(179,17,9);
+			background: linear-gradient(0deg, rgba(179,17,9,1) 0%, rgba(182,133,17,1) 47%, rgba(177,222,164,1) 100%);
+			background-image: url("https://live.content.crayta.com/ui_image/85db55ef-ae4c-4b1d-bfa4-90ad007f5c82_ui_image");
+			background-position: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+		}
+		
+		.fishingForceLevel {
+			position: relative;
+			top: 100%;
+			width: 100%;
+			height: 1rem;
+			//background: rgba(0,200,0,0.5);
+			background-image: url("https://live.content.crayta.com/ui_image/ea1873f8-b9ca-4b77-b5d7-60a1e473278e_ui_image");
+			background-position: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="fishingForceContainer">
+			<div class="fishingForceLevel" id="fishingForceLevel"></div>
+		</div>
+		<!--
+		<h1 data-bind-value="{{properties.signTitle}}" data-bind-style-font-size="{{properties.titleSize}} + 'rem'"></h1>
+		<div data-bind-value="{{properties.signText}}" data-bind-style-font-size="{{properties.textSize}} + 'rem'"></div>
+		-->
+	</div>
+
+	<script>
+		var currentForcePercent = 100;
+		var levelBar;
+		var levelBarMultiplier = -1;
+	
+		window.onload = function() {
+			init();
+		}
+		
+		function init() {
+			levelBar = document.getElementById("fishingForceLevel");
+			//setInterval(tick, properties.tickRate);
+		}
+		
+		let start = null;
+		
+		requestAnimationFrame(tick);
+		
+		function tick(timestamp) {
+			if(!start) {
+				start = time;
+			}
+			const elapsed = timestamp - start;
+
+			moveLevelBar(elapsed);
+			
+			requestAnimationFrame(tick);
+		}
+		
+		function moveLevelBar(dt) {
+			//console.log("Moving bar");
+			var increaseRate = dt * levelBarMultiplier * properties.forceBarSpeed;
+			
+			currentForcePercent += increaseRate;
+			//console.log(currentForcePercent);
+			
+			if (currentForcePercent < 0 ) {
+				currentForcePercent = 0;
+				levelBarMultiplier = 1;
+			}
+			if (currentForcePercent > 95 ) {
+				currentForcePercent = 95;
+				levelBarMultiplier = -1;
+			}
+			
+			
+			levelBar.style.top = currentForcePercent + "%";
+		}
+		
+		engine.on("StopRodForce", function () {
+			console.log("Stopping rod force...");
+			Crayta.callLua("CastRodWithForce", currentForcePercent);
+		});
+		
+	
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

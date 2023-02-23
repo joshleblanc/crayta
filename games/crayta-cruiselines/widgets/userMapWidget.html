@@ -1,0 +1,380 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen"></default-asset-property>
+			<default-asset-property name="visible" value="true"></default-asset-property>
+			<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			
+			@font-face {
+			   font-family: 'Font Awesome';
+			   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+			}
+			
+			.fa {
+			   font-family: 'Font Awesome' !important;
+			}
+			
+			body {
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				//justify-content: center;
+				align-items: center;
+				padding-left:8%;
+			}
+			
+			.list {
+				height: 42vw;
+				width: 20%;
+				border: 1px solid black;
+				display: flex;
+				flex-direction: column;
+				background-color: rgba(100, 100, 255, 0.3)
+			}
+			
+			.map {
+				width: 42vw;
+				height: 42vw;
+				border: 1px solid black;
+				position: relative;
+				background-color: rgba(100, 100, 255, 0.3)
+			}
+			
+			.player {
+				position: absolute;
+				width: 3rem;
+				height: 3rem;
+			}
+			
+			.header {
+				display: flex;
+				justify-content: center;
+				padding-top: 1rem;
+				background-color: rgba(0, 0, 0, 0.5);
+				color: rgba(255,255,255, 0.75);
+			}
+			
+			.subheader {
+				display: flex;
+				justify-content: center;
+				border-bottom: 2px solid black;
+				font-size: 0.8rem;
+				padding-top: 0.25rem;
+				padding-bottom: 0.5orem;
+				background-color: rgba(0, 0, 0, 0.5);
+				color: rgba(255,255,255, 0.75);
+			}
+			
+			.list-item {
+				color: rgba(255, 255, 255, 0.75);
+				padding: 1rem;
+				border-bottom: 1px solid black;
+				display: flex;
+				white-space: pre;
+			}
+			
+			.footer {
+				padding: 0.5rem;
+				background-color: rgba(0,0,0,0.5);
+				color: rgba(255,255,255, 0.75);
+				border-top: 2px solid black;
+				display: flex;
+			}
+			
+			.list-container {
+				flex: 1;
+			}
+			
+			.location {
+				position: absolute;
+				background-color: rgba(0, 0, 255, 0.11);
+				transform: translate(-50%, -50%);
+				border: 1px solid rgba(0, 0, 255, 1);
+			}
+			
+			.location-name {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100%;
+				font-size: 0.75rem;
+				text-align: center;
+			}
+			
+			.bounds {
+				fill: rgba(100, 100, 100, 0.5);
+				stroke-width: 0;
+			}
+			
+			.bounds-container {
+				width: 100%;
+				height: 100%;				
+			}
+			
+			.map-icon {
+				position: absolute;
+				transform: translate(-50%, -50%);
+				text-align: center;
+			}
+			
+			.event {
+				transition: color 0.5s ease-in-out;
+			}
+			
+			.inactive-event {
+				color: rgba(0, 0, 0, 0.25);
+			}
+			
+			.upcoming-event {
+				color: silver;
+				animation: pulse-animation-upcoming 2s infinite;
+				border-radius: 100%;
+			}
+			
+			.active-event {
+				color: gold;
+				animation: pulse-animation-active 2s infinite;
+				border-radius: 100%;
+			}
+			
+			.event-subtitle {
+				font-size: 0.75rem;
+				opacity: 0.75;
+			}
+			
+			.line {
+				width: 50%;
+				transform: translate(-110%, 0);
+				background-color: rgba(0, 0, 0, 0.25);
+				position: absolute;
+				height: 1px;
+			}
+			
+			@keyframes pulse-animation-upcoming {
+				0% {
+			    	box-shadow: 0 0 0 0px rgba(192, 192, 192, 0.2);
+			    }
+			    100% {
+			        box-shadow: 0 0 0 20px rgba(192, 192, 192, 0);
+			    }
+			}
+			
+			@keyframes pulse-animation-active {
+				0% {
+			    	box-shadow: 0 0 0 0px rgba(255, 215, 0, 0.2);
+			    }
+			    100% {
+			        box-shadow: 0 0 0 20px rgba(255, 215, 0, 0);
+			    }
+			}
+
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="list">
+			<div class="header">
+				<span>Floor </span> 
+				<span data-bind-value="{{data.floor}}"></span>
+			</div>
+			<div class="subheader">
+				<span>Players: </span>
+				<span data-bind-value="{{data.players}}.filter(p => p.floor === data.floor).length"></span>
+			</div>
+			
+			<div class="list-container">
+				<div class="list-item" data-bind-for="player:{{data.players}}">
+					<span data-bind-value="{{player.name}}"></span>
+					<span> - Floor </span>
+					<span data-bind-value="{{player.floor}}"></span>
+					<span data-bind-if="{{player.location}}.length > 0"> - </span>
+					<span data-bind-value="{{player.location}}"></span>
+				</div>
+			</div>
+
+			
+			<div class="footer">
+				<span>Total Players: </span>
+				<span data-bind-value="{{data.players.length}}"></span>
+			</div>
+		</div>
+		<div class="map">
+			<svg viewBox="-0.5 -0.5 1 1" class="bounds-container">
+				<polygon data-bind-bounding-points="{{data.bounds}}" class="bounds" />
+			</svg>
+			<img src="https://live.content.crayta.com/ui_image/cbce2af7-5b8a-4c6c-a755-1c5895f8313a_ui_image" class="player" data-bind-for="player:{{data.players}}.filter(p => !p.me)" data-bind-player="{{player}}"></img>
+			<img src="https://live.content.crayta.com/ui_image/447a5100-d9ff-49a3-88df-539acb86b90a_ui_image" class="player" data-bind-for="player:{{data.players}}.filter(p => p.me)" data-bind-player="{{player}}"></img>
+
+			<div class="location" data-bind-for="location:{{data.locations}}" data-bind-location="{{location}}">
+				<div class="location-name fa" data-bind-html="{{location.name}}">
+				</div>
+			</div>
+			
+			<div class="map-icon fa" data-bind-for="stair:{{data.stairs}}" data-bind-map-icon="{{stair}}">&#xf554;</div>
+			<div class="fa map-icon" data-bind-for="event:{{data.events}}" data-bind-map-icon="{{event}}">
+				<div class="event" data-bind-class-toggle="active-event:{{event.active}};inactive-event:{{event.inactive}};upcoming-event:{{event.upcoming}}">&#xf005;</div>
+			</div>
+			
+		</div>
+
+		<script>
+			class MapIconAttributeHandler {
+				update(element, stair) {
+					if(stair.floor !== data.floor) {
+						element.style.display = "none";
+						return;
+					} else {
+						element.style.display = "block";
+					}
+					
+					element.style.left = `calc((${stair.x} * 100%) + 50%)`;
+					element.style.top = `calc((${stair.y} * 100%) + 50%)`;
+				}
+			}
+			
+			
+			class BoundingPointsAttributeHandler {
+				update(element, bounds) {
+					if(!bounds) {
+						return;
+					}
+					const points = bounds.filter(b => b.floor === data.floor).sort((a,b) => a.order - b.order).map(b => `${b.x},${b.y}`).join(" ");
+					element.setAttribute("points", points);
+				}
+			}
+			
+			class BoundAttributeHandler {
+				update(element, bound) {
+
+					if(bound.floor !== data.floor) {
+						element.style.display = "none";
+						return;
+					} else {
+						element.style.display = "block";
+					}
+					
+					
+					element.style.left = `calc((${bound.x} * 100%) + 50%)`;
+					element.style.top = `calc((${bound.y} * 100%) + 50%)`;
+					element.style.width = `calc(${bound.width} * 100%)`;
+					element.style.height = `calc(${bound.height} * 100%)`;
+					element.style.transform = `translate(-50%, -50%) rotate(${bound.yaw}deg)`;
+				}
+			}
+			
+			class PlayerAttributeHandler {
+				update(element, player) {
+					if(player.floor !== data.floor) {
+						element.style.display = "none";
+						return;
+					} else {
+						element.style.display = "block";
+					}
+					
+					element.style.left = `calc((${player.x} * 100%) + 50%)`;
+					element.style.top = `calc((${player.y} * 100%) + 50%)`;
+					element.style.transform = `translate(-50%, -50%) rotate(${player.yaw - 60 + 90}deg)`;
+				}
+			}
+			
+			class LocationAttributeHandler {
+				update(element, location) {
+					if(location.floor !== data.floor) {
+						element.style.display = "none";
+						return
+					} else {
+						element.style.display = "block";
+					}
+					
+					element.style.left = `calc((${location.x} * 100%) + 50%)`;
+					element.style.top = `calc((${location.y} * 100%) + 50%)`;
+					element.style.width = `calc(${location.width} * 100%)`;
+					element.style.height = `calc(${location.height} * 100%)`;
+					element.style.transform = `translate(-50%, -50%) rotate(${location.angle}deg)`;
+					
+					const name = element.querySelector(".location-name");
+					name.style.transform = `rotate(${-location.angle}deg)`;
+				}
+			}
+			
+			engine.registerBindingAttribute("map-icon", MapIconAttributeHandler);
+			engine.registerBindingAttribute("player", PlayerAttributeHandler);
+			engine.registerBindingAttribute("location", LocationAttributeHandler);
+			engine.registerBindingAttribute("bound", BoundAttributeHandler);
+			engine.registerBindingAttribute("bounding-points", BoundingPointsAttributeHandler);
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				floor: 1,
+				players: [
+					{ floor: 1, x: 0.5, y: -0.5, yaw: -34, name: "Cereal", location: "Locker Room", me: false }
+				],
+				locations: [
+					{ floor: 1, width: 0.1, height: 0.1, x: 0, y: 0, name: "&#xf015;", angle: 0 }
+				],
+				bounds: [
+					{ x: 0.4337500035762787, y: 0.00044999999227002263, order: 1 },
+					{ x: 0.3140515983104706, y: 0.07373066246509552, order: 2 },
+					{ x: 0.3140333890914917, y: 0.07758945226669312, order: 3 },
+					{ x: -0.3112500011920929, y: 0.07758945226669312, order: 4 },
+					{ x: -0.3112500011920929, y: -0.0775144025683403, order: 5 },
+					{ x: 0.3140560984611511, y: -0.0775144025683403, order: 6 },
+					{ x: 0.314056098461151, y: -0.07393091171979904, order: 7 }
+					//{ floor: 1, width: 0.1, height: 0.1, x: 0, y: 0 }
+				],
+				events: [
+					{ x: -0.25, y: -0.25, floor: 1, upcoming: true }
+				],
+				stairs: [
+					{ x: 0.25, y: -0.25, floor: 1 },
+				]
+			});
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

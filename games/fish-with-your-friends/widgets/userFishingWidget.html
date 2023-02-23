@@ -1,0 +1,448 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="clickHookIncrease" type="number" default="0.01" group="Runtime Values" tooltip="speed of the hook"></property>
+		<property name="hookThreshold" type="number" default="10" group="Runtime Values" tooltip="size of the hook box"></property>	
+		<property name="instructions" type="text" container="array" />
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			overflow: hidden;
+		}
+
+		.container {
+			width: 100%;
+			height: 100%;
+			//background: rgba(0, 0, 0, 0.75);
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			font-size: 10rem;
+			color: white;
+			flex-wrap: wrap;
+		}
+	
+		.placeholderContainer {
+			height: 25rem;
+		}
+		
+		.fishingForceContainer {
+			position: absolute;
+			top: 0%;
+			left: 0%;
+			width: 5rem;
+			height: 25rem;
+			
+			//border: 0.2rem solid green;
+			background: rgb(179,17,9);
+			background: linear-gradient(0deg, rgba(179,17,9,1) 0%, rgba(182,133,17,1) 47%, rgba(177,222,164,1) 100%);
+			background-image: url("https://live.content.crayta.com/ui_image/f4befb42-4c67-41c8-9eb3-a3bb2c982202_ui_image");
+			background-position: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+			z-index: -99;
+		}
+		
+		.fishingFishLevel {
+			position: absolute;
+			top: 100%;
+			width: 30%;
+			transform: translate(116%, 0);
+			height: 10%;
+			//background: rgba(0,0,0,0.5);
+			//background-image: url("https://live.content.crayta.com/ui_image/00b309dd-371e-4236-af74-e9d2ed84387c_ui_image");
+			background-position: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-color: rgb(196, 165, 39);
+			border: 2px solid black;
+			border-radius: 20%;
+			z-index: -9;
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+		
+		.fishingDurationContainer {
+			position: absolute;
+			border: 4px solid white;
+			flex-direction: column;
+			justify-content: flex-end;
+			width: 1rem;
+			height: 18rem;
+			display: flex;
+			//background: red;
+			left: 3.8rem;
+			top: 2.5rem;
+			
+		}
+		
+		.fishingDurationPercent {
+			width: calc(1rem - 8px);
+			height: 50%;
+			
+			left: 1rem;
+			z-index: -10;
+			background: gold;
+		}
+		
+		.hook {
+			position: relative;
+			background-position: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-color: rgba(24, 233, 54, 0.5);
+			//background: rgba(0,125,0,0.5);
+			width: 35%;
+			transform: translate(94%, 0);
+	
+			z-index: 10;
+			top: 50%;
+			border: 1px solid black;
+			border-radius: 10px;
+			//background-image: url("https://live.content.crayta.com/ui_image/a8c654be-0d73-4b51-aea0-7f88a0426a17_ui_image");
+			//background-image: url("https://live.content.crayta.com/ui_image/a8c654be-0d73-4b51-aea0-7f88a0426a17_ui_image");
+			// 2% - 85%
+		}
+		
+		.instructions-container {
+			margin-top: 3rem;	
+		}
+		
+		.instructions {
+			font-size: 1rem;
+			width: 100%;
+		}
+	</style>
+</head>
+
+<body>
+
+<!-- data-bind-style-background-image-url="{{properties.itemImage}}" -->
+<!-- data-bind-style-background-image-url="{{properties.hookImage}}" -->
+	<div class="container">
+		<div class="placeholderContainer">
+			<div class="fishingForceContainer" id="container">
+				<div class="hook" id="hook" data-bind-style-height="{{properties.hookThreshold}} + '%'"></div>
+				<div class="fishingFishLevel" id="fishingFishLevel"></div>
+				
+				<div class="fishingDurationContainer">
+					<div class="fishingDurationPercent" id="durationBar"></div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="instructions-container">
+			<div class="instructions" data-bind-value="{{instruction}}" data-bind-for="instruction:{{properties.instructions}}" />
+		</div>
+				<!--
+		<h1 data-bind-value="{{properties.signTitle}}" data-bind-style-font-size="{{properties.titleSize}} + 'rem'"></h1>
+		<div data-bind-value="{{properties.signText}}" data-bind-style-font-size="{{properties.textSize}} + 'rem'"></div>
+		-->
+	</div>
+
+	<script>
+		let fishSpeed = 20;
+		let maxScore = 20;
+		
+		var currentForcePercent = 50;
+		var levelBar;
+		var levelBarMultiplier = -1;
+		var hookSize = 15;
+		var hookMin = 2;
+		var hookMax = 85;
+		var hookCurrentPercent = hookMax / 2;
+		var fishMin = 2;
+		var fishMax = 87;
+		var isCountingDuration = false;
+		var currentDuration = 0;
+		var durationBar;
+		let container;
+		let overlap = false;
+		
+		let backwardDown = false;
+		let forwardDown = false;
+		let score = 0;
+		
+		// https://stackoverflow.com/a/22455664
+		function checkRectOverlap(rect1, rect2) {
+		    /*
+		     * Each array in parameter is one rectangle
+		     * in each array, there is an array showing the co-ordinates of two opposite corners of the rectangle
+		     * Example:
+		     * [[x1, y1], [x2, y2]], [[x3, y3], [x4, y4]]
+		     */
+		     // top left and bottom right
+		     
+		    const hook = rect1; 
+		    const fish = rect2;
+
+			// top left is less than fish top left and bottom right is < 
+			if(hook[0][0] < fish[0][0] && hook[1][0] > fish[1][0]) {
+				return true;
+			}
+			return false;
+		    //Check whether there is an x overlap
+		    if ((rect1[0][0] <= rect2[0][0] && rect2[0][0] <= rect1[1][0]) //Event that x3 is inbetween x1 and x2
+		        || (rect1[0][0] <= rect2[1][0] && rect2[1][0] <= rect1[1][0]) //Event that x4 is inbetween x1 and x2
+		        || (rect2[0][0] <= rect1[0][0] && rect1[1][0] <= rect2[1][0])) {  //Event that x1 and x2 are inbetween x3 and x4
+		        //Check whether there is a y overlap using the same procedure
+		        if ((rect1[0][1] <= rect2[0][1] && rect2[0][1] <= rect1[1][1]) //Event that y3 is between y1 and y2
+		            || (rect1[0][1] <= rect2[1][1] && rect2[1][1] <= rect1[1][1]) //Event that y4 is between y1 and y2
+		            || (rect2[0][1] <= rect1[0][1] && rect1[1][1] <= rect2[1][1])) { //Event that y1 and y2 are between y3 and y4
+		            return true;
+		        }
+		    }
+		    return false;
+		}
+		
+		window.onload = function() {
+			init();
+		}
+		
+		function init() {
+			levelBar = document.getElementById("fishingFishLevel");
+			hook = document.getElementById("hook");
+			//setInterval(tick, properties.tickRate);
+			durationBar = document.getElementById("durationBar");
+			container = document.getElementById("container");
+		}
+		
+		
+		let lastTime = null;
+		
+		engine.on("LocalOnButtonPressed", btn => {
+			if(btn === "forward") {
+				forwardDown = true;
+			}
+			if(btn === "backward") {
+				backwardDown = true;
+			}
+		});
+		
+		engine.on("LocalOnButtonReleased", btn => {
+			if(btn === "forward") {
+				forwardDown = false;
+			}
+			if(btn === "backward") {
+				backwardDown = false;
+			}
+		});
+		
+		function tick(timestamp) {
+			
+			if(!lastTime) {
+				lastTime = timestamp;
+			}
+			
+			const dt = timestamp - lastTime;
+			
+			lastTime = timestamp
+		
+			handleInput(dt);
+			
+			moveLevelBar(dt);
+			//decreaseHook(dt);
+			//tickDuration(dt);
+			checkScore(dt);
+			
+			if(isCountingDuration) {
+				requestAnimationFrame(tick);
+			}
+		}
+		
+		function handleInput(dt) {
+			if(forwardDown) {
+				increaseHook(dt);
+			} 
+			if(backwardDown) {
+				decreaseHook(dt);
+			}
+		}
+		
+		function rectToArrays(rect) {
+			return [
+				[rect.top, rect.left], [rect.bottom, rect.right]
+			]
+		}
+		
+		function checkScore(dt) {
+			const diff = Math.abs(currentForcePercent - hookCurrentPercent);
+			
+			const hookBox = hook.getBoundingClientRect();
+			const barBox = levelBar.getBoundingClientRect();
+			
+			if(checkRectOverlap(rectToArrays(hookBox), rectToArrays(barBox))) {
+				score = score + ((dt / 1000) * 2);
+				overlap = true;
+			} else {
+				overlap = false;
+			}
+			score = Math.max(score - (dt / 1000), 0);
+			
+			if(score > maxScore) {
+				finishMinigame(true);
+			}
+			if(score === 0) {
+				console.log("Finishing minigame due to low score")
+				finishMinigame(false);
+			}
+			durationBar.style.height = (score / maxScore) * 100 + "%";
+		}
+		
+		function finishMinigame(res) {
+			currentDuration = 0;
+			hookMax = 100 - properties.hookThreshold - 2;
+			hookCurrentPercent = hookMax/2;
+			lastTime = null;
+			forwardDown = false;
+			backwardDown = false;
+			
+			isCountingDuration = false;
+			overlap = false;
+			score = maxScore / 2;
+			Crayta.callLua("FinishMinigame", currentForcePercent, hookCurrentPercent, res);
+		}
+		
+		function tickDuration(dt) {
+			if (isCountingDuration) {
+				currentDuration += dt/1000;
+				if (currentDuration > properties.duration && !overlap) {
+					finishMinigame(false);
+				}
+				//Crayta.callLua("FishHookDistance", Math.abs(currentForcePercent - hookCurrentPercent));
+				//console.log(currentDuration);
+				//durationBar.style.height = currentDuration / properties.duration * 100 + "%";
+			}
+		}
+		
+		function moveLevelBar(dt) {
+		
+			if(Math.random() < 0.01) {
+				levelBarMultiplier = levelBarMultiplier * -1;
+				
+				const fishMaxSpeed = properties.clickHookIncrease + 2;
+				const fishMinSpeed = properties.clickHookIncrease / 2;
+				fishSpeed = Math.random() * (fishMaxSpeed - fishMinSpeed) + fishMinSpeed;
+				console.log("New Fish Speed: " + fishSpeed);
+			}
+		
+			var increaseRate = (dt / 1000) * levelBarMultiplier * fishSpeed;
+			
+			currentForcePercent += increaseRate;
+			
+			if (currentForcePercent < fishMin) {
+				currentForcePercent = fishMin;
+				levelBarMultiplier = 1;
+			}
+			if (currentForcePercent > fishMax ) {
+				currentForcePercent = fishMax;
+				levelBarMultiplier = -1;
+			}
+			
+			
+			levelBar.style.top = currentForcePercent + "%";
+		}
+		
+		function decreaseHook(dt) {
+			hookCurrentPercent = hookCurrentPercent + properties.clickHookIncrease * (dt / 1000); //properties.passiveHookDecrease //* (dt / 1000);
+			
+			if (hookCurrentPercent < hookMin) {
+				hookCurrentPercent = hookMin;
+			}
+			if (hookCurrentPercent > hookMax) {
+				hookCurrentPercent = hookMax;
+			}
+			hook.style.top = hookCurrentPercent + "%";
+		}
+		
+		function increaseHook(dt) {
+			hookCurrentPercent -= properties.clickHookIncrease * (dt / 1000);
+			
+			if (hookCurrentPercent < hookMin) {
+				hookCurrentPercent = hookMin;
+			}
+			if (hookCurrentPercent > hookMax) {
+				hookCurrentPercent = hookMax;
+			}
+			hook.style.top = hookCurrentPercent + "%";
+		}
+		
+		engine.on("StopRodForce", function () {
+			console.log("Stopping rod force...");
+			Crayta.callLua("CastRodWithForce", currentForcePercent);
+		});
+		
+		engine.on("IncreaseHook", function () {
+			//increaseHook();
+		});
+		
+		engine.on("DecreaseHook", function() {
+			//decreaseHook();
+		});
+		
+		engine.on("StartMinigame", function () {
+			fishingFishLevel = 50;
+			isCountingDuration = true;
+			currentDuration = 0;
+			score = maxScore / 2;
+			hookMax = 100 - properties.hookThreshold - 2;
+			hookCurrentPercent = hookMax/2;
+			lastTime = null;
+			forwardDown = false;
+			backwardDown = false;
+			levelBar.style.top = currentForcePercent + "%";
+			hook.style.top = hookCurrentPercent + "%";
+			requestAnimationFrame(tick);
+		});
+	
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>
