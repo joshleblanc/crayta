@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <!-- Required includes -->
+        <script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+        <style type="text/css">
+			@font-face {
+				font-family: Teko2;
+				src: url(https://content.crayta.com/fonts/Teko-Bold.ttf);
+				font-weight: 700; 
+				font-style: normal
+			}
+			
+        	body {
+        		width: 100%;
+        		height: 100%;
+        		padding: 0;
+        		margin: 0;
+        		font-family: Teko2;
+        	}
+        	
+            .container {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-color: rgb(0, 0, 0);
+                opacity: 0.5;
+            }
+            
+            .title {
+            	position: absolute;
+            	font-size: 20rem;
+            	color: red;
+            	justify-content: center;
+            	top: 0;
+            	left: 0;
+            	width: 100%;
+            	display: flex;
+            	margin-top: 12rem;
+            	flex-direction: column;
+            	align-items: center;
+            }
+            
+            .subtitle {
+            	color: white;
+            	font-size: 3rem;
+            }
+            
+        </style>
+    </head>
+
+    <body>
+        <div class="container" data-bind-style-opacity="{{data.opacity}}">	
+        	<div class="title">
+	        	<div>You Died</div>
+	        	<div class="subtitle">All is not lost. Use your experience to advance your abilities and progress further. </div>
+	        </div>
+        </div>
+        
+
+        
+
+        <script>
+            engine.createJSModel('data',
+            {
+            	opacity: 0.5,
+                color: "rgb(255, 255, 255)",
+            });
+        </script>
+    </body>
+</html>

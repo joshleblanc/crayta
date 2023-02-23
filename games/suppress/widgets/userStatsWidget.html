@@ -1,0 +1,219 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen" />
+			<default-asset-property name="visible" value="true" />
+			<default-asset-property name="requiresCursor" value="false" />
+		</default-asset-properties>
+
+		<style type="text/css">
+			@font-face {
+				font-family: Teko;
+				src: url(https://content.crayta.com/fonts/Teko-Bold.ttf);
+				font-weight: 700; 
+				font-style: normal
+			}
+			
+			body {
+				font-family: Teko;
+				display: flex;
+				justify-content: center;
+				min-height: 100vh;
+				align-items: center;
+				font-size: 2.5rem;
+				
+			}
+			
+			.h2 {
+				font-size: 4rem;
+				text-align: center;
+				border-bottom: 2px solid black;
+			}
+
+			.container {
+				/* Display */
+				width: 50vh;
+				height: 75vh;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				/* Position */
+			}
+			
+			.buttons {
+				display: flex;
+				flex-direction: row-reverse;
+				justify-content: space-between;
+			}
+			
+			.button {
+				padding: 8px;
+				margin: 8px;
+				box-shadow: 5px 5px 0 black;
+				border: 1px solid black;
+			}
+			
+			.button:hover {
+				background-color: black;
+				color: white;
+				box-shadow: 5px 5px 0 white;
+				border: 1px solid white;
+			}
+			
+			.detail {
+				display: flex;
+				justify-content: space-between;
+			}
+			
+			.red {
+				color: red;
+			}
+			
+			.blue {
+				color: blue;
+			}
+			
+			.divider {
+				border-top: 4px solid white;
+				margin-top: 1rem;
+				margin-bottom: 1rem;
+			}
+			
+			.upgradeable:hover {
+				background-color: black;
+				color: white;
+			}
+			
+			.paper {
+				background: white;
+				color: black;
+				box-shadow: 5px 5px 0 black;
+				padding: 1rem 1.5rem;
+				margin: 1rem;
+			}
+			
+			.instructions {
+				margin-top: 2rem;
+				font-size: 1.2rem;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="container">
+			<!-- data-bind-value outputs the contents of the "exampleModel" attribute "data" -->
+			<div class="sign--body">
+				<div class="paper">
+					<div class="h2" data-bind-value="{{data.header}}"></div>
+					
+					<div class="detail">
+						<div>Level</div>
+						<div data-bind-value="{{data}}.state.level"></div>
+					</div>
+					
+					<div class="detail">
+						<div>Current XP</div>
+						<div data-bind-value="{{data}}.state.availXp"></div>
+					</div>
+					
+					<div class="detail">
+						<div>Required XP</div>
+						<div data-bind-class-toggle="red:{{data}}.state.availXp < {{data}}.state.requiredXp" data-bind-value="{{data}}.state.requiredXp"></div>
+					</div>
+				</div>
+				
+				<div class="paper">
+					<div data-bind-for="stat:{{data}}.state.stats" data-bind-click="handleStatClick({{stat}})">
+						<div class="detail upgradeable">
+							<div data-bind-value="{{stat}}.name"></div>
+							<div class="detail">
+								<div data-bind-value="{{stat}}.level"></div>
+								=>
+								<div data-bind-value="{{stat}}.newLevel" data-bind-class-toggle="blue:{{stat}}.newLevel > {{stat}}.level"></div>
+							</div>
+						</div>
+					</div>
+					<div class="instructions">
+						Click on a stat to upgrade it
+					</div>
+					<div class="buttons">
+						<div class="button" data-bind-click="save()">Save</div>
+						<div class="button" onclick="window.close(event)">Close</div>
+					</div>
+				</div>
+				
+			</div>
+			
+		</div>
+
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				state: {
+					requiredXp: 1000,
+					level: 1,
+					currentXp: 10000,
+					availXp: 10000,
+					stats: [
+						{ name: "Charisma", xp: 0, level: 10, newLevel: 10 },
+						{ name: "Strength", xp: 0, level: 1, newLevel: 1 },
+						{ name: "Guts", xp: 0, level: 2, newLevel: 2 }
+					]
+				},
+				header: "Stats",
+			});
+			
+			function handleStatClick(stat) {
+				Crayta.callLua("AllocateStat", stat.id)
+			}
+			
+			engine.on("addStat", function(stat) {
+				data.stats.push(stat)
+				console.log("Adding stat:")
+				console.log(Object.keys(stat))
+				console.log(Object.values(stat))
+				engine.updateWholeModel(data)
+				engine.synchronizeModels()
+			})
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			
+			function close(e, data)
+			{
+				Crayta.callLua("HideWidget")
+			}
+			
+			function save() {
+				Crayta.callLua("SaveStats")
+			}
+			
+		</script>
+	</body>
+</html>
