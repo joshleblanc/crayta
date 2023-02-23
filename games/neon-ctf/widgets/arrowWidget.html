@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <!-- Required includes -->
+        <script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+        <style type="text/css">
+			.arrow {
+			  width: 0; 
+			  height: 0; 
+			  border-left: 145px solid transparent;
+			  border-right: 145px solid transparent;
+			  border-bottom: 145px solid red;
+			}
+						
+			.arrow-container {
+			  width: 100vw;
+			  height: 100vh;
+			  display: flex;
+			  justify-content: center;
+			}
+
+        </style>
+    </head>
+
+    <body>
+        <!-- YOUR HTML CODE HERE -->
+        <div class="arrow-container" data-bind-style-transform-rotate="{{arrow.angle}}">
+        	<div class="arrow">
+	        	
+	        </div>
+        </div>
+
+        <script>
+            /* YOUR JAVASCRIPT CODE HERE */
+
+            // A model to store data in for your widget
+            engine.createJSModel('arrow',
+            {
+                angle: -45
+            });
+        </script>
+    </body>
+</html>

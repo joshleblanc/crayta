@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <!-- Required includes -->
+        <script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+        <style type="text/css">
+            /* YOUR CSS CODE HERE */
+
+            /* To keep your UI widget looking consistent across multiple screen sizes,
+               we recommended using 'rem' units instead of 'px' units wherever possible.
+               1rem is equivalent to 16px (pixels) at HD resolution. */
+
+            /* You can preview what the widget will look like at different screen sizes / resolutions
+               by clicking the appropriate button located at the top-right of the editor viewport
+               when you have one or more widgets selected in the world tree.
+
+            /* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+            h2 {
+                font-size: 1rem;
+                text-align: center;
+                display: flex;
+            }
+
+            .container {
+                /* Display */
+                width: 100%
+                height: 100%
+                display: flex;
+                flex-direction: column;
+                justify-content: end;
+
+                /* Appearance */
+                background: rgba(0,0,0,1);
+                padding: 1rem 1.5rem;
+                color: white;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="sign--body">
+            	<h2 data-bind-html="{{controls.text}}"></h2>
+            </div>
+        </div>
+
+        <script>
+        	engine.createJSModel('controls', {
+				text: ""
+			});
+        </script>
+    </body>
+</html>

@@ -1,0 +1,76 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			h2 {
+				font-size: 2rem;
+				text-align: center;
+			}
+
+			.container {
+				width: 100%;
+			    height: 100%;
+			    display: flex;
+			    flex-direction: column;
+			    align-items: left;
+			    justify-content: flex-end;
+				padding: 0;
+				margin: 0;
+			}
+			
+			.text {
+				display: flex;
+				padding: 32px;
+				width: 20%;
+				margin-left: 32px;
+				margin-bottom: 40px;
+				font-size: 3.5rem;
+				color: white;
+				align-items: center;
+			}
+			
+			.icon {
+				margin-left: 1rem;
+			}
+		
+		</style>
+	</head>
+
+	<body>
+		<div class="container">
+			<h2 class="text">
+				<span data-bind-value="{{gold.amount}}"></span> 
+				<span class="icon">
+					<svg width="64" height="64" enable-background="new 0 0 56.592 56.592" version="1.1" viewBox="0 0 56.592 56.592" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+						<polygon points="50.453 8.359 18.303 37.431 5.482 31.921 39.744 2.507" fill="#F0C419"/>
+						<polygon points="18.931 54.086 0 44.146 5.482 31.921 18.303 37.431" fill="#F29C1F"/>
+						<polygon points="56.592 18.698 18.931 54.086 18.303 37.431 50.453 8.359" fill="#F3D55B"/>
+					</svg>
+				</span>
+
+
+	
+			</h2>
+		</div>
+
+		<script>
+			engine.createJSModel('gold',
+			{
+				amount: 0
+			});
+		</script>
+	</body>
+</html>

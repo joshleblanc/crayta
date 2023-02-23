@@ -1,0 +1,111 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen" />
+			<default-asset-property name="visible" value="true" />
+			<default-asset-property name="requiresCursor" value="false" />
+		</default-asset-properties>
+
+		<style type="text/css">
+			body {
+				height: 100vh;
+				width: 100vw;
+			}
+			
+			
+			.tear {
+			  position: absolute;
+			  width: 50px;
+			  height: 50px;
+			  border-radius: 0 50% 50% 50%;
+			  border: 3px solid black;
+			  margin-top: 20px;
+			  box-sizing: border-box;
+			  background-color: black;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div id="locator" class="tear" data-bind-style-background-color="{{data.color}}"></div>
+
+		<script>
+			const locator = document.querySelector("#locator")
+			function clamp(val, min, max) {
+			    return val > max ? max : val < min ? min : val;
+			}
+					
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				color: ""
+			});
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("setViewportPoint", function(x, y, angry) {
+				const magnetY = document.body.offsetHeight * y;
+				const magnetX = document.body.offsetWidth * x;
+				
+				let top = clamp(magnetY, 15, (document.body.offsetHeight - 50));
+				let left = clamp(magnetX, 30, (document.body.offsetWidth - 30));
+				
+				let clamped = false;	
+				if(top !== magnetY || left !== magnetX) {
+					clamped = true;
+				}
+				
+				
+				locator.style.top = `${top}px`;
+				locator.style.left = `${left}px`;
+				
+				
+				if(clamped) {
+					const midPointY = document.body.offsetHeight / 2;
+					const midPointX = document.body.offsetWidth / 2;
+					
+					const opp = top - midPointY;
+					const adj = (left - midPointX);
+					
+					const radians = Math.atan2(opp, adj);
+					const angle = radians * (180 / Math.PI);
+					locator.style.display = 'block';
+					locator.style.transform = `translate(-25px, -25px) rotate(${angle+135}deg)`;
+				} else {
+					locator.style.display = 'none';
+				}
+				
+				
+				
+				//exampleModel.data = input
+				//engine.updateWholeModel(exampleModel);
+				//engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

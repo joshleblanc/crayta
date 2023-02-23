@@ -1,0 +1,147 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen" />
+			<default-asset-property name="visible" value="true" />
+			<default-asset-property name="requiresCursor" value="false" />
+		</default-asset-properties>
+
+		<style type="text/css">
+			@font-face {
+			   font-family: 'Font Awesome';
+			   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+			}
+			.fa {
+			   font-family: 'Font Awesome';
+			}
+		
+			body {
+				height: 100vh;
+				width: 100vw;
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-end;
+				align-items: center;
+			}
+			
+			.container {
+				width: 35vw;
+				display: flex;
+				justify-content: space-between;
+			}
+			
+			.ability-icon {
+				width: 11rem;
+				background-color: rgba(89, 94, 97, .5);
+				border-radius: 40px 40px 0 0;
+				display: flex;
+				position: relative;
+			}
+			
+			.ability-icon__icon {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+			}
+			
+			.ability-icon__progress {
+				visibility: hidden;
+				transform: scaleY(1);
+				transform-origin: bottom;
+				height: 100%;
+				background-color: rgba(255, 255, 255, 0.1);
+				width: 100%;
+				border-radius: 40px 40px 0 0;
+				position: absolute;
+			}
+			
+			.ability-icon__progress--cooldown {
+				visibility: visible;
+				transform: scaleY(0);
+			}
+			
+			.ability-icon__progress--active {
+				visibility: visible;
+				background-color: rgba(252, 177, 86, 0.25);
+				transform: scaleY(1);
+			}
+			
+			.large-icon {
+				font-size: 8rem;
+				color: rgba(244, 171, 2, .75);
+			}
+			
+			.ability-icon__button {
+				color: rgb(244, 171, 2);
+				padding-bottom: 8px;
+				font-size: 2rem;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="container">
+			<div class="ability-icon">
+				<div id="push" class="ability-icon__progress" data-bind-class-toggle="ability-icon__progress--cooldown:{{data.pushCooldown}};ability-icon__progress--active:{{data.pushCooldown}} === false"></div>
+				<div class="ability-icon__icon">
+					<span class="fa large-icon">&#xf31e;</span>
+					<span class="ability-icon__button" data-bind-html="{{data.pushButton}}"></span>
+				</div>
+				
+			</div>
+			<div class="ability-icon">
+<div id="pull" class="ability-icon__progress" data-bind-class-toggle="ability-icon__progress--cooldown:{{data.pullCooldown}};ability-icon__progress--active:{{data.pullCooldown}} === false"></div>
+				<div class="ability-icon__icon">
+					<span class="fa large-icon">&#xf78c;</span>
+					<span class="ability-icon__button" data-bind-html="{{data.pullButton}}"></span>
+				</div>
+			</div>
+			
+			<div class="ability-icon">
+<div id="boost" class="ability-icon__progress" data-bind-class-toggle="ability-icon__progress--cooldown:{{data.boostCooldown}};ability-icon__progress--active:{{data.boostCooldown}} === false"></div>
+				<div class="ability-icon__icon">
+					<span class="fa large-icon">&#xf077;</span>
+					<span class="ability-icon__button" data-bind-html="{{data.boostButton}}"></span>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				pushCooldown: false,
+				pullCooldown: false,
+				boostCooldown: false,
+				pushButton: "{primary-icon}",
+				pullbutton: "{secondary-icon}",
+				boostButton: "space"
+			});
+			
+			engine.on("triggerCooldown", (key, val, amt) => {
+				const el = document.querySelector(`#${key}`);
+				data[`${key}Cooldown`] = val
+
+				if(val) {
+					el.style.transition = `transform ${amt}s ease-out`;
+				} else {
+					el.style.transition = "";
+				}
+				
+				engine.updateWholeModel(data);
+				engine.synchronizeModels()
+			});
+		</script>
+	</body>
+</html>
