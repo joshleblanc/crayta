@@ -1,0 +1,181 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen" />
+			<default-asset-property name="visible" value="true" />
+			<default-asset-property name="requiresCursor" value="false" />
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			h2 {
+				font-size: 2rem;
+				text-align: center;
+			}
+			
+			@font-face {
+			   font-family: SpecialElite;
+			   src: url('https://content.crayta.com/fonts/SpecialElite-Regular.ttf');
+			   font-weight: 400; /* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+			}
+			
+			body {
+				height: 100vh;
+				width: 100vw;
+			}
+
+			.container {
+				/* Display */
+				width: 100vh;
+				height: 30vh;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				/* Position */
+				position: absolute;
+				top: 45vh;
+				left: 50vw;
+				transform: translate(-50%, 50%);
+				/* Appearance */
+				
+				padding: 1rem 1.5rem;
+				color: white;
+				border-image: url(https://live.content.crayta.com/ui_image/f674846a-4d22-45b4-aaa5-e875d5fc649e_ui_image);
+				border-image-slice: 0 fill;
+			}
+			
+			.content {
+				display: flex;
+				font-family: SpecialElite;
+				color: black;
+				font-size: 2rem;
+				margin: 32px;
+				flex-wrap: wrap;
+				
+			}
+			
+			.content div {
+				margin-right: 8px;
+				margin-left: 8px;
+			}
+			
+			.highlight {
+				color: blue;
+				font-size: 2.5rem;
+				display: inline-block;
+			}
+			
+			.buttons {
+				font-family: SpecialElite;
+				display: flex;
+				height: 100%;
+				align-items: flex-end;
+				justify-content: flex-end;
+				font-size: 4rem;
+				margin-top: auto;
+				padding: 16px;
+				color: white;
+				text-shadow: 1px 1px black;
+			}
+			
+			.button {
+				margin-left: 8px;
+				margin-right: 8px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="container">
+			<div class="content" data-bind-html="{{data.html}}">
+			
+			</div>
+		</div>
+		
+		<div class="buttons">
+			<span>Press</span>
+			<span class="button" data-bind-html="{{data.continueButton}}"></span>
+			<span>to continue</span>
+		</div>
+
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				html: "The kingdoms of east and west Craytaria have been bitter <div class='highlight'>rivals</div> of millenia.",
+				continueButton: "{jump-icon}"
+			});
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+			
+			engine.on("setInstruction", function(instruction) {
+				const words = instruction.split(" ");
+				const adjWords = [];
+				
+				let currentWord = "";
+				words.forEach(word => {
+				    if(currentWord) {
+				    	currentWord = `${currentWord} ${word}`;
+				    } else if(word.startsWith("[")) {
+				   	currentWord = word;
+				    }
+				    
+				    if(!currentWord && !word.startsWith("[")) {
+				    	adjWords.push(`<div>${word}</div>`);
+				    }
+				    
+				    if(currentWord && currentWord.includes("]")) {
+				     	currentWord = currentWord.replace("[", "<div class='highlight'>");
+				   	currentWord = currentWord.replace("]", "</div>");
+				    	adjWords.push(currentWord);
+				    	currentWord = null;
+				    }
+			    });
+				
+				data.html = adjWords.join(" ");
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();
+			})
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

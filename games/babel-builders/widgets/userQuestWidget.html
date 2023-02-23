@@ -1,0 +1,215 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen" />
+			<default-asset-property name="visible" value="true" />
+			<default-asset-property name="requiresCursor" value="false" />
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			@font-face {
+			   font-family: SpecialElite;
+			   src: url('https://content.crayta.com/fonts/SpecialElite-Regular.ttf');
+			   font-weight: 400; /* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+			}
+			
+			h2 {
+				font-size: 2rem;
+				text-align: center;
+			}
+
+			.container {
+				margin: 64px;
+				padding: 32px;
+				color: #ffecdb;
+				width: 26vw;
+				background-size: 100%;
+				background-image: url(https://live.content.crayta.com/ui_image/6a7b50dd-3711-4567-b1ff-6502d9d322ab_ui_image);
+				border-image: url(https://live.content.crayta.com/ui_image/f0617325-5ff8-4cdb-87f0-09789defcb6a_ui_image);
+				border-image-slice: 0 fill;
+				transition: opacity 1s ease-in-out;
+			}
+			
+			.header {
+				background-image: url(https://live.content.crayta.com/ui_image/027af614-b5e2-4622-8ddd-a58ddb660fb6_ui_image);
+				background-size: 100%;
+				margin-left: -32px;
+				margin-right: -32px;
+				margin-top: -64px;
+				margin-bottom: 32px;
+				padding-bottom: 8px;
+				padding-top: 16px;
+				font-size: 4rem;
+				display: flex;
+				color: #05182a;
+				justify-content: center;
+				align-items: center;
+
+			}
+			
+			body {
+				height: 90vh;
+				display: flex;
+				justify-content: flex-end;
+				align-items: center;
+				font-family: SpecialElite;
+
+			}
+			.step {
+				font-size: 4rem;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			
+			.step span {
+				margin: 8px;
+			}	
+			
+			.instructions {
+				font-size: 3rem;
+				text-align: center;
+				background-image: url(https://live.content.crayta.com/ui_image/b7123ea5-e779-400a-9b6c-faa1706eb92f_ui_image);
+				background-size: 100%;
+				padding: 24px;
+			}
+			
+			.requirements {
+				display: flex;
+				font-size: 3rem;
+				justify-content: space-between;
+			}
+			
+			.requirement {
+				margin: 16px;
+				padding: 16px;
+				background-image: url(https://live.content.crayta.com/ui_image/b7123ea5-e779-400a-9b6c-faa1706eb92f_ui_image);
+				background-size: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				flex-direction: column;
+			}
+			
+			.reward {
+				font-size: 3rem;
+				margin: 16px;
+				padding: 16px;
+				background-image: url(https://live.content.crayta.com/ui_image/b7123ea5-e779-400a-9b6c-faa1706eb92f_ui_image);
+				background-size: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-direction: row;	
+			}
+			
+			.icon {
+				width: 4rem;
+				height: 4rem;
+				display: flex;
+				margin: 8px;
+			}
+			
+			.progress {
+				display: flex;
+			}
+			
+			.transparent {
+				opacity: 0.5;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="container" data-bind-class-toggle="transparent:{{data.transparent}}">
+			<div class="header">
+				Quest
+			</div>
+
+			<div class="instructions" data-bind-value="{{data.instructions}}"></div>
+			<div class="requirements">
+				<div class="requirement requirements--wood" data-bind-if="{{data.woodRequirement}} > 0">
+					<img class="icon" alt="" src="https://live.content.crayta.com/ui_image/f095b22f-1c85-4d75-8853-17b1abf91305_ui_image">
+					</img>
+					<div class="progress">
+						<div data-bind-value="{{data.woodGathered}}"></div>
+						/
+						<div data-bind-value="{{data.woodRequirement}}"></div>
+					</div>
+				</div>
+				
+				<div class="requirement requirements--stone" data-bind-if="{{data.stoneRequirement}} > 0">
+					<img class="icon" src="https://live.content.crayta.com/ui_image/cc6f6481-392d-4f93-87ec-5005f57985f0_ui_image" alt="stone" ></img>
+					<div class="progress">
+						<div class="stone--progress__current" data-bind-value="{{data.stoneGathered}}"></div>
+						/
+						<div class="stone--progress__total" data-bind-value="{{data.stoneRequirement}}"></div>
+					</div>
+				</div>
+			</div>
+			<div class="reward">
+				<div>Reward: </div>
+				<div data-bind-value="{{data.reward}}"></div>
+				<img class="icon" alt="gold" src="https://live.content.crayta.com/ui_image/c68fd698-b90f-44fa-8d60-15c941e98ab9_ui_image"></img>
+			</div>
+			<div class="progress"></div>
+		</div>
+
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				instructions: "We need more wood for our defenses!",
+				woodRequirement: 10,
+				stoneRequirement: 10,
+				woodGathered: 0,
+				stoneGathered: 0,
+				transparent: false,
+				reward: 0,
+			});
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

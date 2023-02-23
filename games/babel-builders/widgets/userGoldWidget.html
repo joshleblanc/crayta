@@ -1,0 +1,104 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen" />
+			<default-asset-property name="visible" value="true" />
+			<default-asset-property name="requiresCursor" value="false" />
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			@font-face {
+			   font-family: SpecialElite;
+			   src: url('https://content.crayta.com/fonts/SpecialElite-Regular.ttf');
+			   font-weight: 400; /* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+			}
+			
+			body {
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				justify-content: flex-end;
+				align-items: flex-end;
+			}
+			
+			.icon {
+				max-width: 4rem;
+				max-height: 4rem;
+				margin-right: 16px;
+				padding-bottom: 8px;
+			}
+
+			.container {
+				font-size: 5rem;
+				padding: 32px;
+				margin: 64px;
+				display: flex;
+				justify-content: flex-end;
+				color: white;
+				font-family: SpecialElite;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="container">
+			<img class="icon" alt="gold" src="https://live.content.crayta.com/ui_image/c68fd698-b90f-44fa-8d60-15c941e98ab9_ui_image">
+
+			</img>
+			
+			<div class="amount" data-bind-value="{{data.gold}}"></div>
+		</div>
+
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				gold: 0
+			});
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>
