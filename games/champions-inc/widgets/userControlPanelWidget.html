@@ -1,0 +1,888 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="World"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="buttonText" type="text"></property>
+		<property name="exitText" type="text"></property>
+		<property name="goodResource" type="string"></property>
+		<property name="evilResource" type="string"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		@font-face {
+		   font-family: 'Font Awesome';
+		   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+		}
+		
+		.fa {
+			font-family: "Font Awesome";
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+		}
+
+		.container {
+			width: calc(100vw - 5rem);
+			height: calc(100vh - 5rem);
+			display: flex;
+			flex-direction: row;
+		}
+		
+		.title {
+			font-size: 4rem;
+			display: flex;
+			width: 100%;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+			text-align: center;
+		}
+		
+		.detail-cards {
+			display: flex;
+			height: 95%;
+			width: 100%;
+			align-items: center;
+		}
+		
+		.sidebar {
+			width: 30%;
+		}
+		
+		.details.main-detail {
+			padding-top: 3rem;
+			align-items: center;
+			background-image: url("https://live.content.crayta.com/ui_image/85f52432-b13b-425c-8c1a-7a4135ce5ec7_ui_image");
+			background-position: center;
+			background-size: cover;
+			border: 4px solid grey;
+			border-radius: 20px;
+			width: 1200px;
+			margin-left: -10rem;
+			z-index: 1;
+			height: 90%;
+			transition: transform 0.75s;
+			transform-origin: top left;
+		}
+		
+		.details.main-detail.inactive {
+			transform: translateX(-20%) scaleX(0);
+			z-index: 1;
+		}
+		
+		.details {
+			height: 100%;
+			margin: 0rem 3rem 3rem 3rem;
+			padding: 6rem 6rem 6rem 6rem;
+			display: flex;
+			flex-direction: column;
+			border-image: url("https://live.content.crayta.com/ui_image/98ac8369-e85a-45e3-a58f-8d92feae1232_ui_image");
+			border-image-slice: 0 fill;	
+			filter: drop-shadow(0 0 10px black);	
+			z-index: 10;
+		}
+		
+		.details-header {
+			font-size: 2rem;
+			justify-content: center;
+			display: flex;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+		}
+		
+		.stats {
+			display: flex;
+			color: white;
+			flex-wrap: wrap;
+			justify-content: center;
+			border: 2px solid black;
+			border-radius: 20px;
+			margin: 1rem;
+		}
+		
+		.stat {
+			align-items: center;
+			display: flex;
+			flex-direction: column;
+			padding: 1rem;
+		}
+		
+		.icon {
+			width: 2rem;
+			height: 2rem;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center;
+			border-radius: 0.5rem;
+		}
+		
+		.description {
+			color: white;
+			padding-top: 1rem;
+			font-size: 1.2rem;
+		}
+		
+		.health {
+			display: flex;
+			justify-content: center;
+			position: relative;
+			height: 1.5rem;
+		}
+		
+		.xp {
+			display: flex;
+			justify-content: center;
+			position: relative;
+			height: 1.5rem;
+		}
+		
+		.health-image {
+			position: absolute;
+	
+			z-index: 1;
+			height: 100%;
+		}
+		
+		.health-bar {
+			background-color: rgba(255, 0, 0, 0.9);
+			height: 100%;
+		}
+		
+		.health-bar-container {
+			position: absolute;
+			height: 25%;
+			top: 0.5rem;
+			left: 6.8rem;
+			border-radius: 40px;
+			width: 10.4rem;
+			z-index: 2;
+		}
+		
+		.xp-bar-container {
+			position: absolute;
+			height: 25%;
+			top: 0.54rem;
+			left: 5.05rem;
+			width: 12rem;
+			z-index: 2;
+			border-radius: 40px;
+		}
+		
+		.xp-bar {
+			background-color: rgba(0, 0, 255, 0.9);
+			height: 100%;
+		}
+		
+		.xp-image {
+			position: absolute;
+			width: 13rem;
+			height: 1.5rem;
+			z-index: 1;
+
+		}
+		
+		.label {
+			font-size: 1.25rem;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+			display: flex;
+			justify-content: center;
+			width: 100%;
+		}
+		
+		.exit-text {
+			position: absolute;
+			left: 0;
+			color: white;
+			bottom: 1rem;
+			left: 3rem;
+			font-size: 3rem;
+			text-shadow: 2px 2px 10px black;
+		}
+		
+		.mission {
+			background-color: white;
+			border-radius: 2rem 0 0rem 0;
+			border-bottom: 3px solid black;
+			border-right: 3px solid black;
+			margin: 1rem;
+			padding: 1rem;
+			display: flex;
+			flex-direction: column;
+			box-shadow: 2px 2px 5px black;
+			color: black;
+			text-shadow: none;
+		}
+	
+
+		.mission:hover {
+			border-color: blue !important;
+			cursor: pointer;
+		}
+		
+		.mission-header {
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		.mission-duration {
+			font-size: 0.75rem;
+			opacity: 0.75;
+			margin-top: 0.1rem;
+		}
+		
+		.trivial {
+			color: green;
+		}
+		
+		.Medium {
+			color: orange;
+		}
+		
+		.Hard {
+			color: red;
+		}
+		
+		.xp-amount {
+			display: flex;
+			font-size: 0.5rem;
+			color: white;
+			justify-content: center;
+			margin-top: 0.25rem;
+		}
+		
+		.xp-amount > span:nth-child(1) {
+			padding-right: 0.25rem;
+		}
+		
+		.details-subtitle {
+			display: flex;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+			justify-content: center;
+		}
+		
+		.details-subtitle > span:nth-child(1) {
+			padding-right: 0.25rem;
+		}
+		
+		.arrow-button {
+			border-image: url("https://live.content.crayta.com/ui_image/ff68d80d-5057-4fe8-9ae2-cf27edc4955d_ui_image");
+			border-image-slice: 0 fill;
+			width: 4rem;
+			height: 4rem;
+			margin: 1rem;
+			filter: drop-shadow(0 0 3px black);
+		}
+		
+		.arrow-button.arrow-backwards {
+			transform: scaleX(-1);
+		}
+		
+		.arrow-button:hover {
+			filter: drop-shadow(0 0 10px white);
+		}
+		
+		.buttons {
+			display: flex;
+			justify-content: center;
+			border-image: url("https://live.content.crayta.com/ui_image/13d45bd8-4553-47c5-9e0d-e9140fd87bd5_ui_image");
+			border-image-slice: 0 fill;
+			filter: drop-shadow(0 0 3px black);
+		}
+		
+		.bottom {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+			align-items: flex-end;
+			width: 100%;
+			margin-top: 1rem;
+		}
+		
+		.disabled {
+			opacity: 0.5;
+			filter: none;
+		}
+		
+		.mission-difficulty {
+			opacity: 0.75;
+			font-size: 1.3rem;
+		}
+		
+		.buy-button {
+			padding: 2rem;
+			display: flex;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+			justify-content: center;
+			font-size: 1.5rem;
+			justify-self: flex-end;
+			margin: 0.75rem;
+			filter: drop-shadow(0 0 3px black);
+			border-image: url("https://live.content.crayta.com/ui_image/13d45bd8-4553-47c5-9e0d-e9140fd87bd5_ui_image");
+			border-image-slice: 0 fill;
+		}
+		
+		.buy-button:hover {
+			filter: drop-shadow(0 0 10px white);
+		}
+		
+		.buy-button.small {
+			padding: 1rem;
+		}
+		
+		.mission-data {
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		buy-button.disabled:hover mission.disabled:hover {
+			box-shadow: none;
+			border: 2px solid black;
+			cursor: default;
+		}
+		
+		.mission-data.rewards {
+			font-size: 0.75rem;
+			opacity: 0.75;
+		}
+		
+		.mission-details {
+			width: 50%;
+			margin-top: 4rem;
+			display: flex;
+			flex-direction: column;
+			font-size: 1.5rem;
+		}
+		
+		.mission-detail {
+			display: flex;
+			justify-content: space-between;
+			padding: 0.25rem;
+		}
+		
+		.assigned-heroes {
+			display: flex;
+			width: 50%;
+			justify-content: space-between;
+		}
+		
+		.assigned-hero {
+			border: 4px solid grey;
+			background-color: white;
+			opacity: 0.8;
+			border-radius: 20px;
+			width: 6rem;
+			height: 6rem;
+			background-size: cover;
+			background-position: center;
+			
+		}
+		
+		.assigned-hero:hover {
+			opacity: 1;
+		}
+		
+		.header {
+			font-size: 2rem;
+			padding: 1rem;
+			padding-top: 2rem;
+		}
+		
+		.buttons-container {
+			display: flex;
+			justify-content: space-between;
+			padding-left: 4rem;
+			padding-right: 4rem;
+			width: 100%;
+		}
+		
+		.buy-button.success {
+			filter: drop-shadow(0 0 3px black) hue-rotate(90deg);
+		}
+		
+		.buy-button.fail {
+			filter: drop-shadow(0 0 3px black) hue-rotate(310deg);
+		}
+		
+		.buy-button.in-progress {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+		
+		.subtitle {
+			margin-top: -1rem;
+			margin-bottom: 1rem;	
+		}
+		
+		.mission.success {
+			border-color: green;
+			background: linear-gradient(160deg, white 40%, rgba(0, 255, 0, 0.25) 100%);
+		}
+		
+		.mission.fail {
+			border-color: red;
+			background: linear-gradient(160deg, white 40%, rgba(255, 0, 0, 0.25) 100%);
+		}
+		
+		.mission.in-progress { 
+			border-color: yellow;
+		}
+		
+		.close-button {
+			width: 1.5rem;
+			height: 1.5rem;
+			background-color: red;
+			border-radius: 100%;
+			position: absolute;
+			right: -0.5rem;
+			top: -0.5rem;
+			font-family: 'Font Awesome';
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 0.7rem;
+			color: white;
+			text-shadow: unset;
+		}
+		
+		.close-button:hover {
+			background-color: white;
+			color: red;
+			cursor: pointer;
+		}
+		
+		.assigned-hero-container {
+			position: relative;
+		}
+		
+		.active-hero.result {
+			display: flex;
+		}
+		
+		.resource-icon {
+			width: 26px;
+			height: 26px;
+			background-size: cover;
+		}
+	
+	</style>
+</head>
+
+<body data-bind-if="!{{data}}.hidden">
+
+	<div class="container">
+		<div class="detail-cards">
+			<div class="details">
+				<div class="details-header">Missions</div>
+				<div class="missions">
+					<div data-bind-for="mission:state.list({{data}}.missions)" data-bind-click="selectMission({{mission}})">
+						<div class="mission" data-bind-class-toggle="disabled:!!{{mission}}.inProgress && !!!{{mission}}.result;in-progress:!!{{mission}}.inProgress && !!!{{mission}}.result" data-bind-class="{{mission}}.result">
+							<div class="mission-header">
+								<div class="mission-name" data-bind-html="{{mission}}.name"></div>
+								<div class="mission-difficulty" data-bind-difficulty="{{mission}}.difficulty" data-bind-if="!!!{{mission}}.result"></div>
+								<div class="active-hero result" data-bind-if="!!{{mission}}.result">
+									Complete
+									<span class="fa">&#xf00c;</span>	
+								</div>
+							</div>
+							<div class="mission-data">
+								<div class="mission-duration" data-bind-value="{{mission}}.duration"></div>
+								<div>
+									<div class="active-hero" data-bind-if="!!{{mission}}.inProgress && !!!{{mission}}.result"  data-bind-value="{{mission}}.timeRemaining"></div>
+									
+								</div>
+							</div>
+							<div class="mission-data rewards">
+								<div class="mission-reward" data-bind-value="{{mission}}.xpReward + 'xp'"></div>
+								<div class="mission-reward" data-bind-value="{{mission}}.moneyReward + ' gold'"></div>
+								<div class="mission-reward" data-bind-value="{{mission}}.percentChance + ' chance of success'"></div>
+							</div>
+						</div>
+						
+						
+					</div>
+				</div>
+				
+				<div class="bottom">
+					<div class="buttons-container">
+						<div class="buttons">
+							<div class="arrow-button arrow-backwards" data-bind-click="prevPage()" data-bind-class-toggle="disabled:{{data}}.prevDisabled">
+
+							</div>
+						</div>
+						<div class="buttons">
+							<div class="arrow-button" data-bind-click="nextPage()" data-bind-class-toggle="disabled:{{data}}.nextDisabled">
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="details main-detail" data-bind-class-toggle="inactive:!{{data}}.selectedMission">
+				<div class="title" data-bind-value="{{data}}.selectedMission.name"></div>
+				
+				<div class="mission-details">
+					<div class="mission-detail">
+						<span>Duration:</span>
+						<span data-bind-value="{{data}}.selectedMission.duration"></span>
+					</div>
+					<div class="mission-detail">
+						<span>Chance of success:</span>
+						<span data-bind-value="{{data}}.selectedMission.percentChance"></span>
+					</div>
+					<div class="mission-detail">
+						<span>Difficulty:</span>
+						<span class="mission-difficulty" data-bind-difficulty="{{data}}.selectedMission.difficulty"></span>
+					</div>
+					<div class="mission-detail">
+						<span>Experience:</span>
+						<span class="mission-difficulty" data-bind-value="{{data}}.selectedMission.xpReward"></span>
+					</div>
+					<div class="mission-detail">
+						<span>Money:</span>
+						<span class="mission-difficulty" data-bind-value="{{data}}.selectedMission.moneyReward"></span>
+					</div>
+					<div class="mission-detail">
+						<span>Resources:</span>
+						<span class="mission-difficulty">
+							<span data-bind-value="{{data}}.selectedMission.resourceReward"> </span>
+							<span class="resource-icon" data-bind-style-background-image-url="{{properties}}[{{data}}.selectedMission.alignment + 'Resource']"></span>
+						</span>
+	
+					</div>
+				</div>
+				
+				<div class="header">Assigned Heroes</div>
+				<div class="subtitle" data-bind-value="({{data}}.selectedHeroes || []).filter(h => h.id).length + ' of 3'">
+				</div>
+				<div class="assigned-heroes">
+					<div class="assigned-hero-container">
+						<div class="assigned-hero" data-bind-click="selectHero(0)" data-bind-style-background-image-url="{{data}}.selectedHeroes[0].iconUrl"></div>
+						<div class="close-button" data-bind-if="!!{{data}}.selectedHeroes[0].id && !{{data}}.selectedMission.inProgress" data-bind-click="removeHero(0)">&#xf00d;</div>
+					</div>
+					<div class="assigned-hero-container">
+						<div class="assigned-hero" data-bind-click="selectHero(1)" data-bind-style-background-image-url="{{data}}.selectedHeroes[1].iconUrl"></div>
+						<div class="close-button" data-bind-if="!!{{data}}.selectedHeroes[1].id && !{{data}}.selectedMission.inProgress" data-bind-click="removeHero(1)">&#xf00d;</div>
+					</div>
+					<div class="assigned-hero-container">
+						<div class="assigned-hero" data-bind-click="selectHero(2)" data-bind-style-background-image-url="{{data}}.selectedHeroes[2].iconUrl"></div>
+						<div class="close-button" data-bind-if="!!{{data}}.selectedHeroes[2].id && !{{data}}.selectedMission.inProgress" data-bind-click="removeHero(2)">&#xf00d;</div>
+					</div>
+				</div>
+				
+				<div class="bottom">
+					<div class="buy-button" data-bind-if="!!!{{data}}.selectedMission.inProgress" data-bind-click="startMission()" data-bind-class-toggle="disabled:!!!({{data}}.selectedHeroes || []).filter(h => h.id).length">
+						Start Mission
+					</div>
+					<div class="buy-button success" data-bind-click="completeMission()" data-bind-if="{{data}}.selectedMission.result === 'success'">
+						Success
+					</div>
+					<div class="buy-button failure" data-bind-click="completeMission()" data-bind-if="{{data}}.selectedMission.result === 'fail'">
+						Failure
+					</div>
+					<div class="buy-button in-progress" data-bind-if="!!!{{data}}.selectedMission.result && {{data}}.selectedMission.inProgress">
+						<span>In Progress</span>
+						<span data-bind-value="{{data}}.selectedMission.timeRemaining"></span>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<div class="exit-text" data-bind-value="{{properties}}.exitText"></div>
+
+	<script>
+		/**
+		 * https://stackoverflow.com/a/9493060
+		 * Converts an HSL color value to RGB. Conversion formula
+		 * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+		 * Assumes h, s, and l are contained in the set [0, 1] and
+		 * returns r, g, and b in the set [0, 255].
+		 *
+		 * @param   {number}  h       The hue
+		 * @param   {number}  s       The saturation
+		 * @param   {number}  l       The lightness
+		 * @return  {Array}           The RGB representation
+		 */
+		function hslToRgb(h, s, l){
+		    var r, g, b;
+
+		    if(s == 0){
+		        r = g = b = l; // achromatic
+		    } else {
+		        var hue2rgb = function hue2rgb(p, q, t){
+		            if(t < 0) t += 1;
+		            if(t > 1) t -= 1;
+		            if(t < 1/6) return p + (q - p) * 6 * t;
+		            if(t < 1/2) return q;
+		            if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+		            return p;
+		        }
+
+		        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		        var p = 2 * l - q;
+		        r = hue2rgb(p, q, h + 1/3);
+		        g = hue2rgb(p, q, h);
+		        b = hue2rgb(p, q, h - 1/3);
+		    }
+
+		    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+		}
+	
+		const state = {};
+		const pageSize = 4;
+		
+
+		
+		engine.createJSModel("data", {
+			hidden: false,
+			stats: [
+				{ name: "Strength", level: 10, imageUrl: "https://live.content.crayta.com/ui_image/22d653c8-862e-4c2b-94eb-3235f904cf65_ui_image" },
+				{ name: "Intelligence", level: 10, imageUrl: "https://live.content.crayta.com/ui_image/80b1557c-4cf0-43c1-a702-f4af9d5bc9a3_ui_image" },
+				{ name: "Health", level: 10, imageUrl: "https://live.content.crayta.com/ui_image/1e1d2f08-393e-479f-8b0c-499a0adbf982_ui_image" },
+			],
+			missions: [
+				{ id: "mission-1", result: "success", name: "Test Mission 1", duration: "15", difficulty: 1, active: "Hammer", xpReward: 100, moneyReward: 25, percentChance: "50%" },
+				{ id: "mission-2", result: "fail", resourceReward: 1, name: "Test Mission 2", duration: "60", difficulty: 0.9 },
+				{ id: "mission-3", inProgress: true, timeRemaining: "9:58", name: "Test Mission 3", duration: "1440", difficulty: 0.8 },
+				{ id: "mission-1", name: "Test Mission 1", duration: "15", difficulty: 0.7 },
+				{ id: "mission-2", name: "Test Mission 2", duration: "60", difficulty: 0.6, },
+				{ id: "mission-3", name: "Test Mission 3", duration: "1440", difficulty: 0.5 },
+				{ id: "mission-1", name: "Test Mission 1", duration: "15", difficulty: 0.4 },
+				{ id: "mission-2", name: "Test Mission 2", duration: "60", difficulty: 0.3 },
+				{ id: "mission-3", name: "Test Mission 3", duration: "1440", difficulty: 0.2 },
+				{ id: "mission-1", name: "Test Mission 1", duration: "15", difficulty: 0.1 },
+				{ id: "mission-2", name: "Test Mission 2", duration: "60", difficulty: 0, },
+
+			],
+			selectedMission: { resourceReward: 1, alignment: "good", timeRemaining: "10:00", inProgress: true, assignedHeroes: [], id: "mission-1", name: "Find owners of lost and found items", duration: "15", difficulty: 1, active: "Hammer", xpReward: 100, moneyReward: 25, percentChance: "50%" },
+			selectedHeroes: [
+				{ iconUrl: "https://live.content.crayta.com/ui_image/4e71a525-214f-47bd-8b94-0eb4c8bbdef3_ui_image" }
+			],
+			prevDisabled: true,
+			nextDisabled: true,
+		});
+		
+		class DifficultyAttribute {
+			update(el, difficulty) {
+				const hue = ((1 - difficulty) * 120) / 360;
+				
+				const rgb = hslToRgb(hue, 1, 0.5);
+				el.style.color = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+			
+				if(difficulty === 0) {
+					el.innerHTML = "Trivial";
+				} else if(difficulty <= 0.1) {
+					el.innerHTML = "Very Easy";
+				} else if(difficulty <= 0.25) {
+					el.innerHTML = "Easy"
+				} else if(difficulty <= 0.5) {
+					el.innerHTML = "Intermediate";
+				} else if(difficulty <= 0.75) {
+					el.innerHTML = "Hard";
+				} else if(difficulty < 1) {
+					el.innerHTML = "Very Hard";
+				} else if(difficulty === 1) {
+					el.innerHTML = "Impossible";
+				}
+			}
+		}
+		
+		engine.registerBindingAttribute("difficulty", DifficultyAttribute);
+		
+		engine.on("Ready", function() {
+			state.list = engine.createVirtualList();
+			state.list.startIndex = 0;
+			state.list.pageSize = pageSize;
+		});
+		
+		engine.on("SetMissions", missions => {
+			data.missions = missions;
+			
+			console.log("Updating next button", missions.length);
+			data.nextDisabled = missions.length <= pageSize;
+			
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		})
+		
+		engine.on("ClearMissions", () => {
+			data.missions = [];
+		});
+		
+		engine.on("AddMission", mission => {
+			data.missions.push(mission);
+		});
+		
+		engine.on("FinalizeMissions", () => {
+			data.nextDisabled = data.missions.length <= pageSize;
+			
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		});
+		
+		
+		
+		function merge() {
+			if(properties.heroLevel >= 10) {
+				Crayta.callLua("OpenMergeWidget")
+			}
+		}
+		
+		function nextPage() {
+			if(state.list.startIndex + state.list.pageSize < data.missions.length) {
+				state.list.startIndex += state.list.pageSize;
+				
+				if(state.list.startIndex + state.list.pageSize >= data.missions.length) {
+					data.nextDisabled = true;
+				}
+				
+				if(state.list.startIndex > 0) {
+					data.prevDisabled = false;
+				}
+			}
+			
+			engine.updateWholeModel(data);
+			engine.synchronizeModels()
+		}
+		
+		function prevPage() {
+			if(state.list.startIndex - state.list.pageSize >= 0) {
+				state.list.startIndex -= state.list.pageSize;
+				
+				if(state.list.startIndex === 0) {
+					data.prevDisabled = true;
+				}
+				
+				if(state.list.startIndex + state.list.pageSize < data.missions.length) {
+					data.nextDisabled = false;
+				}
+			}
+			engine.updateWholeModel(data);
+			engine.synchronizeModels()
+		}
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		engine.on("LocalOnButtonPressed", function(btn) {
+			console.log(btn)
+			if(btn === "extra2") {
+				Crayta.callLua("Hide")
+			}
+		})
+		
+		function selectMission(mission) {
+			Crayta.callLua("SetSelectedHeroesFromMission", mission.id)
+			//if(!mission.active) {
+				//Crayta.callLua("StartMission", mission.id);
+			//}
+		}
+		
+		function startMission() {
+			console.log("Starting mission")
+			Crayta.callLua("StartMissionControlPanel", data.selectedMission.id)
+		}
+		
+		function selectHero(index) {
+			if(!data.selectedMission.inProgress) {
+				Crayta.callLua("SelectHeroForMission", index, data.selectedMission.id)
+			}
+		}
+		
+		function removeHero(index) {
+			if(!data.selectedMission.inProgress) {
+				Crayta.callLua("RemoveHeroForMission", index, data.selectedMission.id)
+			}	
+		}
+		
+		function completeMission() {
+			Crayta.callLua("CompleteMissionControlPanel")
+		}
+		
+		engine.on("setAssignedHero", (index, missionId, hero) => {
+			console.log("??", missionId)
+			//const mission = getMission(missionId);
+			console.log("???", data.selectedMission.assignedHeroes)
+		//	data.selectedMission = mission;
+			console.log("????", data.selectedMission.assignedHeroes[index])
+			data.selectedMission.assignedHeroes[index] = hero;
+			
+			console.log("Set assigned hero", hero._id, data.selectedMission.id, index)
+			
+			engine.updateWholeModel(data)
+			engine.synchronizeModels()
+		})
+		
+		function getMission(id) {
+			return data.missions.find(m => {
+				console.log(m.id, id)
+				return m.id === id
+			});
+		}
+		
+		engine.on("Hide", () => {
+			data.hidden = true;
+			engine.updateWholeModel(data)
+			engine.synchronizeModels()
+		});
+		
+		engine.on("Show", () => {
+			data.hidden = false;
+			engine.updateWholeModel(data)
+			engine.synchronizeModels()
+		});
+		
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

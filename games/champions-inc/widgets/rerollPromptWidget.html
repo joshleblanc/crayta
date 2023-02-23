@@ -1,0 +1,135 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="cost" type="number" default="1000"></property>
+		<property name="canAfford" type="boolean"></property>
+		<property name="rerollText" type="text"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			overflow: hidden;
+		}
+		
+		h1 {
+			font-size: 2rem;
+		}
+
+		.sign {
+			padding: 4rem;
+			width: 50%;
+			height: 50%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			font-size: 10rem;
+			color: white;
+			position: relative;
+			
+			border-image: url("https://live.content.crayta.com/ui_image/86f45750-e66c-4894-a690-fbb581290b72_ui_image");
+			border-image-slice: 0 fill;
+		}
+		
+		p {
+			font-size: 1rem;
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+		
+		.buy-button {
+			position: absolute;
+			bottom: 2rem;
+			display: flex;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+			justify-content: center;
+			font-size: 2rem;
+		}
+	
+		
+		.buy-button.disabled {
+			opacity: 0.5;
+		}
+		
+		.red {
+			color: red;
+		}
+		
+		.green {
+			color: green;
+		}
+		
+		.price {
+			font-size: 1.5rem;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="sign">
+		<h1>Reroll Available Heroes</h1>
+		<p>Rerolling the store will re-select heroes you can purchase today.</p>
+		<p>Rerolling does not guarantee new heroes will be made available.</p>
+		<p class="price">
+			Price: <span data-bind-class-toggle="green:{{properties.canAfford}};red:!{{properties}}.canAfford"data-bind-value="{{properties}}.cost"></span>
+		</p>
+		<div class="buy-button" data-bind-click="onClick" data-bind-value="{{properties}}.rerollText" data-bind-class-toggle="disabled:!{{properties}}.canAfford">
+			Reroll!
+		</div>
+	</div>
+
+	<script>
+		function onClick() {
+			Cratya.callLua("PerformReroll")
+		}
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

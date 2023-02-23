@@ -1,0 +1,191 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+	
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Graduate;
+			src: url('https://content.crayta.com/fonts/Graduate-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			align-items: center;
+			justify-content:center;
+			flex-direction: column;
+			font-family: Graduate;
+			justify-content: space-around; 
+		}
+
+		.title {
+			width: 100%;
+			height: 50%;
+			display: flex;
+			justify-content:center;
+			align-items:center;
+			padding-top:30%;
+			padding-left:5%;
+			font-size: 11.3rem;
+			color: white;
+			text-shadow: 5px 5px 16px #000000;
+			font-family: Graduate;
+			animation-name: fadeInOut;
+			animation-fill-mode: forwards;
+			animation-duration: 9s;
+			
+		}
+		
+		.button {
+			font-size: 5rem;
+			border:solid;
+			border-width: .5rem;
+			background-color: rgba(200, 70, 48,.8);
+			height:90%;
+			align-items: center;
+			border-radius:2rem;
+			padding:1rem;
+			font-size: 4rem;
+			animation: fadeIn 10s;
+			
+		}
+		
+		.button:hover {
+			transition: background-color 0.5s ease;
+			background-color: #00727D;
+			box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+		}
+		
+		
+		.buttons {
+			color: white;
+			width:100%;
+			display:flex;
+			align-items: center;
+			justify-content: space-around; 
+			flex-direction: row;
+		}
+
+		span {
+			font-family: Graduate;
+		}
+		
+		@keyframes fadeIn {
+  		0% { opacity: 0; }
+  		50% { opacity: .8; }
+  		100% { opacity: 1; }
+		}
+		
+		@keyframes fadeInOut {
+  		0% { opacity: 0; }
+  		50% { opacity: 1; }
+  		100% { opacity: 0; }
+		}
+		
+		@keyframes slideDown {
+  		0% { opacity: 0; }
+  		50% { opacity: 1; }
+  		100% { opacity: 0; }
+		}
+		
+		
+		
+	</style>
+</head>
+
+<body>
+
+	<div class="title">
+		<div>
+		 Cheater
+		</div>
+	</div>
+	<div class="buttons">
+		<div class="button" data-bind-click="startGame()" data-bind-mouseenter="selection()">
+			Start
+		</div>
+		<div class="button" data-bind-click="startLeaderboardView()" data-bind-mouseenter="selection()">
+			Leaderboards
+		</div>
+		
+		<div class="button" data-bind-click="startInstructionCamera()" data-bind-mouseenter="selection()">
+			Instructions
+		</div>
+		
+		
+		<div class="button" data-bind-click="quitGame()" data-bind-mouseenter="selection()">
+			Quit
+		</div>
+	
+	</div>
+
+	<script>
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("test", function (text) {
+			properties.signText = text;
+		});
+		
+	
+		
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		
+		function startGame() {
+			
+			Crayta.callLua("StartGame");
+		}
+		
+		function startLeaderboardView() {
+			
+			
+			Crayta.callLua("StartLeaderboardView");
+		}
+		
+		function startInstructionCamera() {
+			
+			console.log("Calling Start Instruction Camera")
+			Crayta.callLua("StartInstructionCamera");
+		}
+		
+		function quitGame() {
+			
+			
+			Crayta.callLua("QuitGame");
+		}
+		
+		function selection() {
+			// You can pass any data to the Lua function by adding it to the end
+			console.log("SELECTION")
+			Crayta.callLua("SelectionSound");
+		}
+	</script>
+</body>
+
+</html>

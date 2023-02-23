@@ -1,0 +1,143 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="World"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="villainProgress" type="string"></property>
+		<property name="status" type="number"></property>
+		<property name="timeLeft" type="string"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		
+		.text {
+			font-size: 3rem;
+		}
+
+		.sign {
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.75);
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: center;
+			font-size: 1rem;
+			color: white;
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+		
+		.bar {
+			height: 25px;
+			width: 100%;
+			background-color: blue;
+			position: relative;
+		}
+		
+		.villain-bar {
+			background-color: red;
+			position: absolute;
+			height: 25px;
+			width: 50%;
+			transition: width 1s linear;
+		}
+		
+		.labels {
+			font-size: 1rem;
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		.full-width {
+			width: 100%;
+			padding: 1rem;
+		}
+		
+		.subtitle {
+			display: flex;
+			justify-content: center;
+		}
+		
+		.time-left {
+			display: flex;
+			justify-content: center;
+			margin-top: 2rem;
+			font-size: 0.8rem;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="sign">
+		<div class="text">World Alignment</div>
+		<div class="full-width">
+			<div class="labels">
+				<div>Villains</div>
+				<div>Heroes</div>
+			</div>
+			<div class="bar">
+				<div class="villain-bar" data-bind-style-width="{{properties}}.villainProgress"></div>
+			</div>
+			<div class="subtitle">
+				<div data-bind-if="{{properties}}.status === 1">Heroes winning</div>
+				<div data-bind-if="{{properties}}.status === -1">Villains winning</div>
+				<div data-bind-if="{{properties}}.status === 0">No one's winning</div>
+			</div>
+			<div class="time-left" data-bind-value="{{properties}}.timeLeft"></div>
+		</div>	
+		<div></div>	
+	</div>
+
+	<script>
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

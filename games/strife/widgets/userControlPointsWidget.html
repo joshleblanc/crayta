@@ -1,0 +1,151 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+		<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+	</default-asset-properties>
+
+	<style type="text/css">
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			opacity: 0.75;
+		}
+		
+		@font-face {
+		   font-family: 'Font Awesome';
+		   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+		}
+		
+		.fa {
+		   font-family: 'Font Awesome';
+		}
+
+		.sign {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			color: white;
+		}
+
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+
+		h1 {
+			font-family: Montserrat;
+		}
+		
+		.icon {
+			font-size: 2rem;
+			padding-left: 0.4rem;
+		}
+		
+		.point {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			flex: 0;
+			width: 33%;
+		}
+		
+		.pulse {
+			animation-name: pulse;
+			animation-duration: 1s;
+			animation-iteration-count: infinite;
+			animation-direction: alternate;
+			animation-timing-function: linear;
+		}
+		
+		@keyframes pulse {
+			to {
+				opacity: 0.0;
+			}
+		}
+		
+		.team-1 {
+			color: #35DAAB;
+		}
+		
+		.team-2 {
+			color: #B298FC;
+		}
+		
+		.team-0 {
+			color: white;
+		}
+
+	</style>
+</head>
+
+<body>
+
+	<div class="sign">
+		<div data-bind-for="p:{{data}}.points" class="point" >
+			<span 
+				class="fa icon" 
+				data-bind-class-toggle="pulse:{{p}}.pulse"
+				data-bind-class="'team-' + {{p}}.owner"
+			>
+				&#xf6d9;
+			</span>
+			<span data-bind-value="{{p}}.name" class="name"></span>
+		</div>
+	</div>
+
+	<script>
+		/*
+		* Data models allow the widget to use data passed in via Lua to alter display in real-time
+		* e.g. <h1 data-bind-value="{{data.title}}">
+		*/
+		engine.createJSModel('data',
+		{
+			points: [
+				{ id: "lab", pulse: true, owner: 1, name: "!The Lab" },
+				{ id: "lab", pulse: false, owner: 1, name: "!The Armoury" },
+				{ id: "lab", pulse: true, owner: 1, name: "!Guard Tower" }
+			]
+		});
+
+		/*
+		* You can manipulate model data from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.js.data.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			data.text = text;
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		});
+
+
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

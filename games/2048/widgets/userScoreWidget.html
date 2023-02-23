@@ -1,0 +1,214 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen"></default-asset-property>
+			<default-asset-property name="visible" value="true"></default-asset-property>
+			<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+		</default-asset-properties>
+
+		<style type="text/css">
+		
+			@font-face {
+				font-family: Barlow;
+				src: url(https://content.crayta.com/fonts/Barlow-Black.ttf);
+				font-weight: 400; 
+				font-style: normal;
+			}
+			
+			body {
+				width: 100vw;
+				height: 100vh;
+				font-family: Barlow;
+			}
+			
+			.container {
+				justify-content: space-between;
+				font-size: 4rem;
+				color: white;
+				text-shadow: 10px 10px solid black;
+				margin: 2rem;
+				flex: 1;
+				text-shadow: 4px 4px black;
+			}
+			
+			.flex {
+				display: flex;
+			}
+			
+			.current-score {
+				flex: 1;
+			}
+			
+			.best {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				height: 100%;
+			}
+			
+			.prompt {
+				font-size: 2rem;
+				display: flex;
+				justify-content: flex-end;
+			}
+			
+			.results {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+			}
+			
+			.results-background {
+				position: absolute;
+				width: 100vw;
+				height: 100vh;
+				background:  rgba(50, 50, 50, 0.75);
+				opacity: 0.50;
+				z-index: -1;
+			}
+			
+			.results-container {
+				background-color: rgba(10, 200, 75, 1);
+				padding-left: 20rem;
+				padding-right: 20rem;
+				border-radius: 5rem;
+				box-shadow: 0 0 5rem black;
+			}
+			
+			.results-score {
+				font-size: 8rem;
+				color: white;
+				text-shadow: 0 4px black;
+				display: flex;
+				justify-content: center;
+			}
+			
+			.large {
+				flex: 1;
+			}
+			
+			.scores {
+				flex-grow: 1;
+			}
+			
+			.results-header {
+				margin-top: 2rem;
+				display: flex;
+				justify-content: center;
+				font-size: 10rem;
+			}
+			
+			.results-buttons {
+				display: flex;
+				justify-content: space-between;
+				margin-bottom: 2rem;
+			}
+			
+			.result-button {
+				background-color: green;
+				font-size: 5rem;
+				border-radius: 40px;
+				padding: 1rem;
+				margin: 1rem;
+				box-shadow: 0 4px white;
+				color: black;
+				text-shadow: 0 0 6px white;
+			}
+			
+			.result-button:hover {
+				background-color: lightgreen;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div data-bind-if="{{data.inGame}}" class="large">
+			<div class="container flex">
+				<div class="current-score flex">
+					<span>Score: </span>
+					<span data-bind-value="{{data.score}}"></span>
+				</div>
+				<div class="best">	
+					<div class="scores">
+						<div class="best-score flex" >
+							<span>Highscore: </span>
+							<span data-bind-value="{{data.bestScore}}"></span>
+						</div>
+						<div class="best-combo flex">
+							<span>Best Combo: </span>
+							<span data-bind-value="{{data.bestCombo}}"></span>
+						</div>
+					</div>
+					<div class="prompt" data-bind-html="{{data.prompt}}">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="results" data-bind-if="{{data.inResults}}">
+			<div class="results-background"></div>
+			<div class="results-container">
+				<div class="results-header">Game Over</div>
+				<div class="results-score" data-bind-value="{{data.score}}"></div>
+				<div class="results-buttons">
+					<div class="result-button" data-bind-click="playAgain()">Play Again</div>
+					<div class="result-button" data-bind-click="goToMenu()">Main Menu</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				score: 100,
+				bestScore: 1234,
+				bestCombo: 2048,
+				prompt: "Press R to go back to the menu",
+				inGame: true,
+				inResults: false
+			});
+			
+			function goToMenu() {
+				Crayta.callLua("GoToMenu");
+			}
+			
+			function playAgain() {
+				Crayta.callLua("PlayAgain");
+			}
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

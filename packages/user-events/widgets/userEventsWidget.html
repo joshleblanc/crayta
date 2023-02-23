@@ -1,0 +1,19 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+</head>
+
+<body>
+	<script>
+		engine.on("LocalOnButtonPressed", function (btn) {
+			Crayta.callLua("WidgetOnButtonPressed", btn)
+		});
+		engine.on("LocalOnButtonReleased", function (btn) {
+			Crayta.callLua("WidgetOnButtonReleased", btn)
+		});
+	</script>
+</body>
+
+</html>

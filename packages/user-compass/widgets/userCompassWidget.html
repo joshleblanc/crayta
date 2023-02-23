@@ -1,0 +1,328 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen"></default-asset-property>
+			<default-asset-property name="visible" value="true"></default-asset-property>
+			<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			@font-face {
+			   font-family: 'Material Icons';
+			   src: url('https://content.crayta.com/fonts/MaterialIcons-Regular.otf');
+			}
+			
+			.material-icons {
+			   font-family: 'Material Icons';
+			}
+			
+			@font-face {
+			   font-family: 'Font Awesome';
+			   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+			}
+			
+			.fa {
+			   font-family: 'Font Awesome';
+			}
+						
+			
+			body {
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				justify-content: center;
+				overflow: hidden;
+			}
+			
+			.compass {
+				position: relative;
+				top: 0;
+				width: 50vw;
+				height: 4rem;
+				background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			
+			.target {
+				position: absolute;
+				width: 5rem;
+				height: 2rem;
+				font-size: 1.8rem;
+			}
+			
+			.target-inner {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				transform: translate(-50%, 0);
+			}
+			
+			.indicator {
+				width: 2rem;
+				height: 2rem;
+			}
+			
+			.distance {
+				font-size: 1rem;
+				color: rgba(255, 255, 255, 0.75);
+				text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.75);
+			}
+			
+			.name {
+				font-size: 1rem;
+				color: white;
+				text-shadow: 1px 1px 1px black;
+				margin-top: 1.2rem;
+				text-align: center;
+			}
+			
+			.image {
+				width: 2rem;
+				height: 2rem;
+				display: flex;
+			}
+			
+			.dot {
+				border-radius: 40px;
+			}
+			
+			.hidden {
+				display: none;
+			}
+			
+			.pulse {
+				animation-name: pulse;
+				animation-duration: 1s;
+				animation-iteration-count: infinite;
+				animation-direction: alternate;
+				animation-timing-function: linear;
+			}
+			
+			@keyframes pulse {
+				to {
+					opacity: 0.0;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		
+		
+		<!-- Top bar -->
+		<div class="compass" data-bind-if="!{{data}}.hideBar">
+			<div 
+				data-bind-for="target:{{data.targets}}" 
+				data-bind-target="{{target}}" data-bind-compass-left="{{target}}" 
+				data-bind-style-color="{{target.color}}"
+				data-bind-class-toggle="pulse:{{target.pulse}}"
+				data-bind-id="{{target.id}}"
+				class="target"
+			>
+				<div data-bind-if="{{target}}.isVisible" class="target-inner">
+					<img class="image" data-bind-src="{{target.imageUrl}}" data-bind-if="{{target.indicator}} === 'Image'"></img>
+					<div 
+						class="indicator" 
+						data-bind-style-background-color="{{target.color}}"
+						data-bind-class-toggle="dot:{{target.indicator}} === 'Dot'"
+						data-bind-if="{{target.indicator}} === 'Dot' || {{target.indicator}} === 'Square'"
+					></div>
+					<div class="fa" data-bind-html="{{target.codePoint}}" data-bind-if="{{target.indicator}} === 'Font Awesome Icon'"></div>
+					<div class="material-icons" data-bind-value="{{target.codePoint}}" data-bind-if="false"></div>
+
+					<div class="name" data-bind-value="{{target.name}}" data-bind-style-opacity="{{target.opacity}}"></div>
+					<div class="distance" data-bind-value="{{target.distance}}" data-bind-style-opacity="{{target.opacity}}" data-bind-if="{{target}}.showDistance"></div>
+
+				</div>
+			</div>
+		</div>
+		
+		<!-- World Indicator -->
+		<div 
+			data-bind-for="target:{{data.targets}}" 
+			class="target" 
+			data-bind-class-toggle="hidden:!{{target.worldIndicator}};pulse:{{target.pulse}}"
+			data-bind-style-left="{{target.worldIndicator.x}}" 
+			data-bind-style-top="{{target.worldIndicator.y}}"
+			data-bind-style-color="{{target.color}}"
+		>
+			<div class="target-inner">
+				<img class="image" data-bind-src="{{target.imageUrl}}" data-bind-if="{{target.indicator}} === 'Image'"></img>
+				<div 
+					class="indicator" 
+					data-bind-style-background-color="{{target.color}}"
+					data-bind-class-toggle="dot:{{target.indicator}} === 'Dot'"
+					data-bind-if="{{target.indicator}} === 'Dot' || {{target.indicator}} === 'Square'"
+				></div>
+				<div class="fa" data-bind-html="{{target.codePoint}}" data-bind-if="{{target.indicator}} === 'Font Awesome Icon'"></div>
+				<div class="material-icons" data-bind-value="{{target.codePoint}}" data-bind-if="false"></div>
+
+				<div class="name" data-bind-value="{{target.name}}" data-bind-style-opacity="{{target.opacity}}"></div>
+				<div class="distance" data-bind-value="{{target.distance}}" data-bind-style-opacity="{{target.opacity}}" data-bind-if="{{target}}.showDistance"></div>
+
+			</div>
+		</div>
+
+		<script>
+			function clamp(num, min, max) {
+				return Math.min(Math.max(num, min), max);
+			}
+			
+			class SrcAttributeHandle {
+				update(element, src) {
+					element.src = src;
+				}
+			}
+			
+			class TargetAttributeHandle {				
+				update(element, target) {				
+					if(target.fadeIcon) {
+						element.style.opacity = target.opacity;
+					}
+				}
+			}
+			
+			class IdAttributeHandle {
+				update(element, id) {
+					element.id = id;
+				}
+			}
+			
+			class CompassPosAttributeHandler {
+				update(element, target) {
+					const adjAngle = clamp(target.angle, -1, 1);
+					element.style.left = `calc((${adjAngle} * 50%) + 50%)`;
+				}
+			}
+		
+			engine.registerBindingAttribute("id", IdAttributeHandle);
+			engine.registerBindingAttribute("src", SrcAttributeHandle);
+			engine.registerBindingAttribute("compass-left", CompassPosAttributeHandler);
+			
+			engine.registerBindingAttribute("target", TargetAttributeHandle);
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				targets: [{
+					name: "Workout Bench",
+					indicator: "Image",
+					codePoint: "&#xf02d;",
+					imageUrl: "https://live.content.crayta.com/ui_image/3c0104cb-cdb1-47ca-b169-a337fee6c038_ui_image",
+					color: "#ff0000",
+					distance: 123,
+					fadeIcon: true,
+					worldIndicator: {
+						x: 0,
+						y: 1
+					},
+					angle: -1 / 90,
+					adjAngle: clamp(-1 / 90, -1, 1),
+					absAngle:  Math.abs(clamp(-1 / 90, -1, 1)),
+					opacity: 1 - Math.abs(clamp(-1 / 90, -1, 1))
+				}],
+				hideBar: false
+			});
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+			
+			engine.on("ResetTargets", () => {
+				data.targets = [];
+			})
+			
+			engine.on("AddTarget", (id, angle, name, indicator, codePoint, color, imageUrl, distance, fadeIcon, worldIndicator, alwaysDisplayWorldIndicator, keepWorldIndicatorOnScreen, pulse, showDistance, isVisible) => {
+				const target = data.targets.find(a => a.id === id);
+				let d = {};
+				if(target) {
+					d = target;
+				} else {
+					data.targets.push(d);
+				}
+				
+				d.id = id;
+				d.name = name;
+				d.indicator = indicator;
+				d.codePoint = `&#x${codePoint};`;
+				d.color = `rgb(${color.red}, ${color.green}, ${color.blue})`;
+				d.imageUrl = imageUrl;
+				d.distance = `${Math.floor(distance / 100)}m`;
+				d.fadeIcon = fadeIcon;
+				d.pulse = pulse;
+				d.showDistance = showDistance;
+				d.isVisible = isVisible;
+					
+				if(angle) {
+					d.angle = angle / 90;
+					d.adjAngle = clamp(d.angle, -1, 1);
+					d.absAngle = Math.abs(d.adjAngle);
+					d.opacity = (1 - d.absAngle);
+				}
+				
+				if(worldIndicator) {
+					
+					d.alwaysDisplayWorldIndicator = alwaysDisplayWorldIndicator;
+					d.keepWorldIndicatorOnScreen = keepWorldIndicatorOnScreen;
+					d.worldIndicator = {
+						x: worldIndicator.x * window.innerWidth,
+						y: worldIndicator.y * window.innerHeight
+					}
+					
+					if(keepWorldIndicatorOnScreen) {
+						d.worldIndicator.x = clamp(d.worldIndicator.x, 0, window.innerWidth);
+						d.worldIndicator.y = clamp(d.worldIndicator.y, 0, window.innerHeight);
+					}
+				} else {
+					d.worldIndicator = null;
+				}
+			});
+			
+			engine.on("SyncModels", () => {			
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

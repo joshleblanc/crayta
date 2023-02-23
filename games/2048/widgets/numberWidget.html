@@ -1,0 +1,119 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen"></default-asset-property>
+			<default-asset-property name="visible" value="true"></default-asset-property>
+			<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+			body {
+				width: 250px;
+				height: 250px;
+				font-size: 250px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: white;
+				text-shadow: 10px 10px black;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div data-bind-number="{{data.num}}" data-bind-opacity="{{data}}.opacity"></div>
+
+		<script>
+		
+			const colors = {
+				2: "white",
+				4: "#ffa500",
+				8: "#ffff00",
+				16: "#0000cd",
+				32: "#dda0dd",
+				64: "#1e90ff",
+				128: "#ff00ff",
+				256: "#00ced1",
+				512: "#8b4513",
+				1024: "#2f4f4f",
+				2048: "#90ee90",
+				4096: "#ff1493",
+				8192: "#ffdab9",
+				16384: "#191970",
+				32768: "#006400",
+				65536: "#00ff00"
+			}
+			class NumberAttributeHandler {
+				update(el, num) {
+					const size = 350 / num.toString().length
+					el.style.fontSize = `${size}px`;
+					el.style.color = colors[num];
+					el.innerHTML = num;
+				}
+			}
+			
+			class OpacityHandler {
+				update(el, opacity) {
+					el.style.opacity = opacity;
+				}
+			}
+			
+			engine.registerBindingAttribute("number", NumberAttributeHandler)
+			engine.registerBindingAttribute("opacity", OpacityHandler)
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				num: 0,
+				opacity: 1,
+			});
+			
+			engine.on("Flash", () => {
+				
+			});
+
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

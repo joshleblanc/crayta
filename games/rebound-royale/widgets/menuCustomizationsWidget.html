@@ -1,0 +1,192 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="wins" type="number"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			overflow: hidden;
+			height: 100vh;
+			width: 100vw;
+			font-family: Montserrat;
+		}
+	
+		
+		.container {
+			display: flex;
+			justify-content: space-between;
+			padding: 8rem;
+			align-items: center;
+			height: 100%;
+			width: 100%;
+		}
+		
+		.button {
+			border: 5px solid rgba(255, 255, 255, 0.5);
+			padding: 2rem;
+			border-radius: 40px;
+			color: rgba(255, 255, 255, 0.5);
+			display: flex;
+			font-size: 3rem;
+			justify-content: center;
+			margin: 1rem;
+			background-color: black;
+		}
+		
+		.button:hover {
+			border: 5px solid white;
+			color: white;
+		}
+		
+		.back-button {
+			position: absolute;
+			bottom: 2rem;
+			left: 2rem;
+			font-size: 1rem;
+			padding: 1rem;
+			color: white;
+		}
+		
+		.banner {
+			left: 0;
+			top: 0;
+			margin-top: 2rem;
+			position: absolute;
+			width: 100vw;
+			display: flex;
+			justify-content: center;
+			color: white;
+			text-shadow: 0 0 10px black;
+			font-size: 3rem;
+		}
+		
+		
+		.customization {
+			width: 25%;
+			border: 5px solid rgba(255, 255, 255, 0.5);
+			height: 50%;
+			border-radius: 40px;
+			padding: 1rem;
+			margin: 1rem;
+			background-color: black;
+		}
+		
+		.customization:hover {
+			border: 5px solid rgba(255, 255, 255, 1);
+		}
+		
+		.customization.disabled {
+			opacity: 0.5;
+			border: 5px solid rgba(255, 255, 255, 0.5);
+		}
+		
+		.wrap {
+			flex-wrap: wrap;
+		}
+		
+		.requirement {
+			color: white;
+			font-size: 2rem;
+			display: flex;
+			justify-content: center;
+			margin-top: 1rem;
+		}
+		
+		.requirement:after {
+			content: "Wins";
+			margin-left: 1rem;
+		}
+		
+		.equipped {
+			font-size: 1.5rem;
+			color: white;
+			display: flex;
+			justify-content: center;
+		}
+		
+		.customization-image {
+			height: 75%;
+			background-size: contain;
+			background-position: center;
+		}
+		
+		.customizations {
+			justify-content: center;
+		}
+		
+		.wins {
+			position: absolute;
+			color: white;
+			top: 0;
+			left: 0;
+			font-size: 2rem;
+			display: flex;
+			text-shadow: 0 0 10px black;
+			margin: 2rem;
+		}
+		
+		.wins:before {
+			content: "Wins: ";
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container wrap customizations">
+		<div class="wins" data-bind-value="{{properties}}.wins"></div>
+		<div class="banner">Customize Base Color</div>
+		<div class="customization" data-bind-click="selectCustomization({{customization}})" data-bind-class-toggle="disabled:!{{customization}}.enabled" data-bind-for="customization:{{data}}.customizations">
+			<div class="customization-image" data-bind-style-background-image-url="{{customization}}.image"></div>
+			<div class="requirement" data-bind-value="{{customization}}.requirement"></div>
+			<div class="equipped" data-bind-if="{{customization}}.equipped">Equipped</div>
+			<div class="equipped" data-bind-if="!{{customization}}.enabled">Locked</div>
+		</div>
+		
+		<div class="back-button button" data-bind-click="Crayta.callLua('ShowHomeMenu')">Go Back</div>
+	</div>
+
+	<script>
+		engine.createJSModel("data", {
+			customizations: [
+				{ enabled: true, equipped: true, requirement: "10 wins", image: "https://live.content.crayta.com/ui_image/3ee334d8-a81d-4407-bc1e-e8ff7c05d5bf_ui_image" },
+				{ requirement: "25 wins", image: "https://live.content.crayta.com/ui_image/3ee334d8-a81d-4407-bc1e-e8ff7c05d5bf_ui_image" },
+				{ requirement: "50 wins", image: "https://live.content.crayta.com/ui_image/3ee334d8-a81d-4407-bc1e-e8ff7c05d5bf_ui_image" },
+				{ requirement: "100 wins", image: "https://live.content.crayta.com/ui_image/3ee334d8-a81d-4407-bc1e-e8ff7c05d5bf_ui_image" },
+				{ requirement: "100 wins", image: "https://live.content.crayta.com/ui_image/3ee334d8-a81d-4407-bc1e-e8ff7c05d5bf_ui_image" },
+
+			],
+		})
+		
+		function selectCustomization(customization) {
+			if(customization.enabled) {
+				Crayta.callLua("SelectCustomization", customization.templateName)
+			}
+			
+		}
+	</script>
+</body>
+
+</html>

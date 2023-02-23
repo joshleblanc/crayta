@@ -1,0 +1,115 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="progress" type="string"></property>
+		<property name="questionNumber" type="number"></property>
+		<property name="color" type="color"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			width: 100vw;
+			height: 100vh;
+		}
+		
+		
+		.title {
+			display: flex;
+			font-size: 2rem;
+			color: white;
+			text-shadow: 0 0 10px black;;
+		}
+		
+		.container {
+			align-items: center;
+			height: 100%;
+			width: 100%;
+			border: 5px solid white;
+			border-radius: 100px;
+			overflow: hidden;
+		}
+
+		
+		.bar {	
+			flex: 1;
+			display: flex;
+			padding-left: 1rem;
+			transition: width 250ms linear;
+			position: relative;
+		}
+		
+		.details {
+			position: absolute;
+			top: 0.5rem;
+			left: 1rem;
+		}
+		
+		.progress {
+			font-size: 2rem;
+			color: white;
+			text-shadow: 0 0 10px black;
+			margin-left: 0.5rem;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		
+		<div class="bar" data-bind-style-background-color="{{properties}}.color" data-bind-style-width="{{properties}}.progress">
+			<div class="details">
+				<div class="title" data-bind-value="'Question: ' + {{properties}}.questionNumber"></div>
+				<span class="progress" data-bind-value="{{properties}}.progress"></span>
+			</div>
+		</div>
+		
+		
+	</div>
+
+	<script>
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

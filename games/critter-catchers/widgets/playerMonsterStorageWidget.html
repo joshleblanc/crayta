@@ -1,0 +1,438 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="signTitle" type="text"></property>
+		<property name="signText" type="text"></property>
+		
+		<property name="titleSize" type="number" default="4"></property>
+		<property name="textSize" type="number" default="2"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			width: 100vw;
+			height: 100vh;
+			background-color: rgba(255,255,255,0.75);
+		}
+		
+		.title {
+			font-size: 4rem;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 1rem;
+		}
+
+		.container {
+			display: flex;
+			width: 100vw;
+			flex: 1;
+		}
+		
+		.selected-monsters {
+			border: 4px solid black;
+			height: 100%;
+			width: 25vw;
+			
+		}
+		
+		.rest-monsters {
+			flex: 1;
+			border: 4px solid black;
+			flex-direction: column;
+		}
+		
+		.selected-monster {
+			border: 2px solid black;
+			margin: 1rem;
+			padding: 1rem;
+		}
+		
+		.selected-monster:hover {
+			color: white;
+			background-color: rgba(0,0,0,0.5);
+		}
+	
+		
+		.buttons {
+			display: flex;
+			justify-content: space-between;
+			flex: 1;
+			align-items: flex-end;
+		}
+		
+		.button {
+			margin: 1rem;
+			padding: 2rem;
+			border: 4px solid black;
+		}
+		
+		.selected {
+			border: 4px solid yellow;
+			color: white;
+			background-color: rgba(0,0,0,0.5);
+		}
+		
+		.item.selected:hover {
+			border: 4px solid yellow;
+		}
+		
+		.instructions {
+			font-size: 2rem;
+			margin-bottom: 3rem;
+		}
+		
+		.hp-bar-container {
+			border: 1px solid black;
+			border-radius: 40px;
+		}
+		
+		.hp-bar {
+			width: 100%;
+			height: 0.75rem;
+			background-color: green;
+			border-radius: 40px;
+		}
+		
+		.hp-text {
+			display: flex;
+			justify-content: flex-end;
+			font-size: 1.25rem;
+		}
+		
+		.xp-bar {
+			width: 100%;
+			height: 0.5rem;
+			background-color: blue;
+			border-radius: 40px;
+		}
+		
+		.xp-text {
+			display: flex;
+			justify-content: center;
+			font-size: .75rem;
+			opacity: 0.75;
+		}
+		.items {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+			padding: 10px;
+		}
+		
+		.item {
+			position: relative;
+			display: flex;
+		}
+		
+		.item:hover {
+			border: 2px solid black;
+		}
+		
+		.item-details {
+			display: flex;
+			flex-direction: column;
+			margin-left: 0.5rem;
+			margin-top: 0.25rem;
+			flex: 1;
+		}
+		
+		.item-top-details {
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		.item-name {
+			font-size: 1.25rem;
+		}
+		
+		.item-level {
+			font-size: 1rem;
+		}
+		
+		.item-icon {
+			width: 4rem;
+			height: 4rem;
+			background-position: center;
+			background-size: cover;
+		}
+
+		
+		.item-popover {
+			position: absolute;
+			background-color: #ff7518;
+			border: 4px solid #717198;
+			border-radius: 20px;
+			color: white;
+			flex: 1;
+			width: 25vw;
+		}
+		
+		.item-popover-name {
+			font-size: 2rem;
+			display: flex;
+			justify-content: center;
+			margin: 0.5rem;
+			border-bottom: 2px solid black;
+		}
+		
+		.item-popover-desc {
+			margin: 1rem;
+			font-size: 1.25rem;
+		}
+	
+	</style>
+</head>
+
+<body  data-bind-mousemove="onMouseMove(event)" data-bind-click="onBodyClick()">
+	<div class="title">
+		Storage
+	</div>
+	<div class="container">
+
+		<div class="selected-monsters">
+			<div data-bind-for="item:{{data}}.party">
+				<div class="selected-monster item" data-bind-click="handleClick({{item}}.index)" data-bind-class-toggle="selected:{{data}}.selectedIndex === {{item}}.index" data-bind-mouseenter="onMouseEnterItem(event, {{item}})" data-bind-mouseleave="onMouseLeaveItem(event)">
+					<div class="item-icon" data-bind-style-background-image-url="{{item}}.icon"></div>
+					<div class="item-details" data-bind-if="!!{{item}}.name">
+						<div class="item-top-details">
+							<div class="item-name"  data-bind-value="{{item}}.name"></div>
+							<div class="item-level" data-bind-value="'lv.' + {{item}}.level"></div>
+						</div>
+						<div class="hp-bar-container">
+							<div class="hp-bar" data-bind-class="getHpColor({{data}}.friendly)" data-bind-style-width="Math.ceil((Math.max(0, {{item}}.hp / {{item}}.maxHp)) * 100) + '%'"></div>
+						</div>
+						<div class="hp-text" data-bind-value="{{item}}.hp + '/' + {{item}}.maxHp"></div>
+					</div>
+				</div>
+			</div>
+			<div class="buttons">
+				<div class="button" data-bind-click="close()">
+					Close
+				</div>
+			</div>
+		</div>
+		<div class="rest-monsters">
+			<div data-bind-for="item:{{data}}.monsters">
+				<div class="selected-monster item" data-bind-click="handleClick({{item}}.index)" data-bind-class-toggle="selected:{{data}}.selectedIndex === {{item}}.index" data-bind-mouseenter="onMouseEnterItem(event, {{item}})" data-bind-mouseleave="onMouseLeaveItem(event)">
+					<div class="item-icon" data-bind-style-background-image-url="{{item}}.icon"></div>
+					<div class="item-details" data-bind-if="!!{{item}}.name">
+						<div class="item-top-details">
+							<div class="item-name"  data-bind-value="{{item}}.name"></div>
+							<div class="item-level" data-bind-value="'lv.' + {{item}}.level"></div>
+						</div>
+						<div class="hp-bar-container">
+							<div class="hp-bar" data-bind-class="getHpColor({{data}}.friendly)" data-bind-style-width="Math.ceil((Math.max(0, {{item}}.hp / {{item}}.maxHp)) * 100) + '%'"></div>
+						</div>
+						<div class="hp-text" data-bind-value="{{item}}.hp + '/' + {{item}}.maxHp"></div>
+					</div>
+				</div>
+			</div>
+			<div class="buttons">
+				<div class="button" data-bind-click="prevPage()">
+					Prev
+				</div>
+				<div class="instructions" data-bind-value="{{data}}.instructions">
+				
+				</div>
+				<div class="button" data-bind-click="nextPage()">
+					Next
+				</div>
+			</div>
+		</div>
+	</div>
+	
+		<div class="item-popover" data-bind-if="{{data}}.popoverVisible && (!!{{data}}.focusedItem.name || !!{{data}}.focusedItem.description)" data-bind-style-left="{{data}}.popoverLeft" data-bind-style-top="{{data}}.popoverTop">
+			<div class="item-popover-name" data-bind-value="{{data}}.focusedItem.name"></div>
+			<div class="item-popover-desc">
+				<div class="stat" data-bind-for="stat:{{data}}.focusedItem.stats">
+					<div class="item-top-details">
+						<div class="item-name"  data-bind-value="{{stat}}.name"></div>
+						<div class="item-level" data-bind-value="'lv.' + {{stat}}.level"></div>
+					</div>
+					<div class="hp-bar-container" data-bind-if="{{stat}}.name === 'Level'">
+						<div class="xp-bar" data-bind-style-width="Math.ceil((Math.max(0, {{stat}}.xp / {{stat}}.requiredXp)) * 100) + '%'"></div>
+					</div>
+					<div data-bind-if="{{stat}}.name === 'Level'" class="xp-text" data-bind-value="{{stat}}.xp + '/' + {{stat}}.requiredXp"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		
+		const instructions = [
+			"Select a monster by clicking on it",
+			"Select which monster to replace by clicking on it"
+		]
+		
+		function onMouseEnterItem(e, item) {
+			data.popoverVisible = true;
+			
+			data.focusedItem = item;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseLeaveItem(e) {
+			data.popoverVisible = false;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function close() {
+			Crayta.callLua("CloseStorage");
+		}
+		
+		function handleClick(index) {
+			if(data.selectedIndex) {
+				if(data.selectedIndex === index) {
+					data.selectedIndex = null;
+				} else {
+					replace(index);
+				}
+				
+			} else {
+				select(index);
+			}
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function replace(index) {
+			if(data.selectedIndex !== null) {
+				console.log("Sending data to server", data.selectedIndex, index)
+				Crayta.callLua("SwapMonsters", data.selectedIndex, index);
+			}	
+		}
+		
+		function select(index) {
+   		if(index === data.selectedIndex) {
+   			data.selectedIndex = null;
+   		} else {
+   			data.selectedIndex = index;
+   		}
+   		
+   		if(data.selectedIndex !== null) {
+   			data.instructions = instructions[1];
+   		} else {
+   			data.instructions = instructions[0]
+   		}
+   		
+   		update();
+   	}
+		
+		function update() {
+	        engine.synchronizeModels();
+			engine.updateWholeModel(data);
+   	}
+   	
+   	
+   	function onMouseMove(e) {
+			data.popoverLeft = e.clientX + 25;
+			data.popoverTop = e.clientY + 25;
+			
+			data.mouseX = e.clientX;
+			data.mouseY = e.clientY;
+			
+			if(data.overTitle && data.mouseDown || data.movingWindow) {
+				const rect = e.target.getBoundingClientRect();
+				if(data.mouseDownX === null) {
+					data.mouseDownX = e.clientX;
+					data.mouseDownY = e.clientY;
+					data.origWinX = rect.left;
+					data.origWinY = rect.top;
+					data.movingWindow = true;
+				}
+						
+				const offsetX = data.mouseDownX - e.clientX;
+				const offsetY = data.mouseDownY - e.clientY;
+				
+				data.windowLeft = data.origWinX - offsetX;
+				data.windowTop = data.origWinY - offsetY;
+			}
+		
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+   	
+   	function nextPage() {
+	        Crayta.callLua("StorageNextPage")
+	    }
+	    function prevPage() {
+	        Crayta.callLua("StoragePrevPage")
+	    }
+	
+		engine.createJSModel("data", {
+			selectedIndex: null,
+			instructions: instructions[0],
+			page: 0,
+			party: [
+				{ name: "1", index: 1 },
+				{ name: "2", index: 2 },
+				{ name: "3", index: 3 },
+				{ name: "4", index: 4 },
+				{ name: "5", index: 5 },
+				{ name: "6", index: 6 },
+			],
+			monsters: [
+				{ name: "7", index: 7 },
+				{ name: "8", index: 8 },
+				{ name: "9", index: 9 },
+				{ name: "9", index: 9 },
+				{ name: "9", index: 9 },						
+			],
+			popoverLeft: 0,
+			popoverTop: 0,
+			popoverVisible: false,
+			popoverName: "",
+			popoverDesc: "",
+		})
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

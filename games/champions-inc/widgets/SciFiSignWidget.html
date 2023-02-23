@@ -1,0 +1,122 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="World"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="images" type="string" container="array"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.container {
+			width: 100%;
+			height: 100%;
+		}
+		
+		.image {
+			position: absolute;
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-position: center;
+			width: 100%;
+			height: 100%;
+			opacity: 0;
+			animation-name: fade-out;
+			animation-duration: 6s;
+		}
+		
+		.active {
+
+			opacity: 1;
+			z-index: 9;
+			animation-name: slide-in;
+			animation-duration: 0.5s;
+		}
+		
+		@keyframes fade-out {
+			0% { opacity: 1 }
+			99% { opacity: 1 }
+			100% { opacity: 0 }
+		}
+		
+		@keyframes slide-in {
+			from { transform: translateX(100%) }
+			to { transform: translateX(0%) }
+		}
+		
+		@keyframes slide-out {
+			from { transform: translateX(0%) }
+			to { transform: translateX(-100%) }
+		}
+	
+	</style>
+</head>
+
+<body>
+
+	<div class="container" >
+		<div data-bind-for="i,image:{{properties}}.images" class="image" data-bind-style-background-image-url="{{image}}" data-bind-class-toggle="active:{{data}}.index === {{i}}"></div>
+	</div>
+
+	<script>
+	
+		engine.createJSModel("data", {
+			index: 0,
+		})
+		
+		setInterval(() => {
+			data.index = data.index + 1;
+			if(data.index >= properties.images.length) {
+				data.index = 0;
+			}
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		}, (Math.random() * 6000) + 3000);
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

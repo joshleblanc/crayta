@@ -1,0 +1,113 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="World"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="textSize" type="number" default="10"></property>
+		<property name="text" type="text"></property>
+		<property name="numConfirmed" type="number"></property>
+		<property name="total" type="number"></property>
+	</properties>
+
+	<style type="text/css">
+		body {
+		}
+
+		.sign {
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.75);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-wrap: wrap;
+			font-size: 0.5rem;
+			color: white;
+		}
+		
+		.text {
+			display: flex;
+			justify-content: center;
+			width: 100%;
+		}
+		
+		.info {
+			font-size: 2rem;
+			display: flex;
+			
+		}
+
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="sign">
+		<div class="text" data-bind-html="{{properties.text}}" data-bind-style-font-size="{{properties.textSize}} + 'rem'"></div>
+		
+		<div class="info">
+			<span data-bind-value="{{properties.numConfirmed}}">10</span><span>/</span><span  data-bind-value="{{properties.total}}">20</span>
+		</div>
+		
+	</div>
+
+	<script>
+		/*
+		* Data models allow the widget to use data passed in via Lua to alter display in real-time
+		* e.g. <h1 data-bind-value="{{data.title}}">
+		*/
+		engine.createJSModel('data',
+		{
+			title: "Sign Title",
+			text: "Sign text"
+		});
+
+		/*
+		* You can manipulate model data from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.js.data.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			data.text = text;
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		});
+
+
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

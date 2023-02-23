@@ -1,0 +1,119 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		
+		<property name="happiness" type="string"></property>
+		<property name="recentlyFed" type="boolean" default = false></property>
+		<property name="textSize" type="number" default="2"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: 'Font Awesome';
+			src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+			
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			
+		}
+
+		.sign {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			font-size: 1.5rem;
+			color: #ff7518;
+			align-items:center;
+			text-shadow: 0 0 1rem #000000;	
+		}
+		
+		.fa {
+   			font-family: 'Font Awesome';
+   			font-size:3.5rem;
+   			transition: color .5s ease;
+   			transition:font-size .5s ease;
+			}
+			
+		.recentlyFed {
+			animation: bounce-6 .8s 2;
+			color: lime;
+			transition: color 1s ease;
+			font-size:5rem;
+			transition:font-size .2s ease;
+		}
+		
+		
+			
+		span {
+			
+		}
+		
+		@keyframes bounce-6 {
+        0%   { transform: scale(1,1)      translateY(0); }
+        10%  { transform: scale(1.1,.9)   translateY(0); }
+        30%  { transform: scale(.9,1.1)   translateY(-50px); }
+        50%  { transform: scale(1.05,.95) translateY(0); }
+        57%  { transform: scale(1,1)      translateY(-7px); }
+        64%  { transform: scale(1,1)      translateY(0); }
+        100% { transform: scale(1,1)      translateY(0); }
+   	 }
+		
+	</style>
+</head>
+
+<body>
+
+	<div class="sign" >
+		<span> Companion</span>
+		<span> Mood </span>
+		<span class="fa" data-bind-html={{properties.happiness}} data-bind-class-toggle="recentlyFed:{{properties.recentlyFed}}"></span>
+		<span> XP Effectiveness</span>
+	</div>
+
+	<script>
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("updateHappiness", function (text) {
+			properties.happiness = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

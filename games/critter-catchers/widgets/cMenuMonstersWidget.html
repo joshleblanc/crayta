@@ -1,0 +1,547 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="backgroundColor" type="color"></property>
+		<property name="borderColor" type="color"></property>
+		<property name="titleColor" type="color"></property>
+		<property name="font" type="string" default="Montserrat"></property>
+	</properties>
+
+	<style type="text/css">
+		
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		@font-face {
+			font-family: PressStart2P;
+			src: url(https://content.crayta.com/fonts/PressStart2P-Regular.ttf);
+			font-weight: 400; 
+			font-style: normal
+		}
+		
+		@font-face {
+		   font-family: 'Font Awesome';
+		   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+		}
+		
+		.fa {
+		   font-family: 'Font Awesome';
+		}
+
+		body {
+			width: 100vw;
+			height: 100vh;
+		}
+
+		.close-button {
+			border-radius: 100%;
+			width: 3rem;
+			height: 3rem;
+			position: absolute;
+			left: 0.25rem;
+			top: 0.25rem;
+			background-color: red;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 2rem;
+			border: 1px solid black;
+		}
+		
+		.close-button:hover {
+			background-color: white;
+		}
+		
+		.container {
+			width: 20vw;
+			left: 40vw;
+			top: 25vh;
+			position: absolute;
+			border-width: 4px;
+			border-style: solid;
+			border: 4px solid #717198;
+		}
+		
+		.title {
+			display: flex;
+			justify-content: center;
+			font-size: 2rem;
+			padding: 1rem;
+			border-bottom: 4px solid black;
+			color: white;
+			padding:10px;
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+		
+		.items {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+			padding: 10px;
+		}
+		
+		.item {
+			margin: 0.25rem;
+			width: 95%;
+			height: 5rem;
+			position: relative;
+			display: flex;
+			border-radius:5%;
+			border: 2px solid black;
+			padding:2px;
+		}
+		
+		.item:hover {
+			border: 2px solid black;
+		}
+		
+		.item-details {
+			display: flex;
+			flex-direction: column;
+			margin-left: 0.5rem;
+			margin-top: 0.25rem;
+			flex: 1;
+		}
+		
+		.item-top-details {
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		.item-name {
+			font-size: 1.25rem;
+		}
+		
+		.item-level {
+			font-size: 1rem;
+		}
+		
+		.item-icon {
+			width: 4rem;
+			height: 4rem;
+			background-position: center;
+			background-size: cover;
+		}
+		
+		.item-cnt {
+			bottom: 0;
+			right: 0;
+			font-size: 0.75rem;
+			position: absolute;
+			color: white;
+			text-shadow: 0 0 10px black;
+		}
+		
+		.item-popover {
+			position: absolute;
+			border-width: 4px;
+			border-style: solid;
+			border-radius: 20px;
+			color: white;
+			flex: 1;
+			width: 25vw;
+		}
+		
+		.item-popover-name {
+			font-size: 2rem;
+			display: flex;
+			justify-content: center;
+			padding: 0.5rem;
+			border-radius: 16px 16px 0 0;
+			border-bottom: 2px solid black;
+		}
+		
+		.item-popover-desc {
+			margin: 1rem;
+			font-size: 1.25rem;
+			text-shadow: 0 0 5px black;
+		}
+		
+		.right-click-menu {
+			width: 10rem;
+			font-size: 1.2rem;
+			boder-style: solid;
+			border-width: 4px;
+			z-index: 1000;
+			position: absolute;
+			background-color: #989871;
+		}
+		
+		.right-click-button {
+			padding: 0.5rem;
+			border-bottom: 4px solid #717198;
+		}
+		
+		.right-click-button:hover {
+			background-color: #c9c9b5;
+		}
+		
+		.right-click-button:last-child {
+			border: none;
+		}
+		
+		.currencies {
+			display: flex;
+			justify-content: flex-end;
+			padding-right: 2rem;
+			background-color: #4a4a36;
+			border-bottom-left-radius: 36px;
+			border-bottom-right-radius: 36px;
+			border-top: 4px solid black;
+			color: white;
+		}
+		
+		.currency {
+			display: flex;
+			align-items: center;
+		}
+		
+		.currency-amt {
+			font-size: 1.5rem;
+			margin-right: 0.5rem;
+		}
+		
+		.currency-icon {
+			height: 1rem;
+			width: 1rem;
+			background-size: cover;
+			background-position: center;
+		}
+		
+		.hp-bar-container {
+			border: 1px solid black;
+			border-radius: 40px;
+		}
+		
+		.hp-bar {
+			width: 100%;
+			height: 0.75rem;
+			background-color: green;
+			border-radius: 40px;
+		}
+		
+		.hp-text {
+			display: flex;
+			justify-content: flex-end;
+			font-size: 1.25rem;
+			margin-top: 0.25rem;
+		}
+		
+		.xp-bar {
+			width: 100%;
+			height: 0.5rem;
+			background-color: blue;
+			border-radius: 40px;
+		}
+		
+		.xp-text {
+			display: flex;
+			justify-content: center;
+			font-size: .75rem;
+			opacity: 0.75;
+			margin-top: 0.25rem;
+		}
+		
+		.active {
+			border-left: 4px solid yellow;
+		}
+	</style>
+</head>
+
+<body data-bind-style-font-family="{{properties}}.font" data-bind-mousemove="onMouseMove(event)" data-bind-click="onBodyClick()">
+	<div		
+		class="container" 
+		data-bind-style-left="{{data}}.windowLeft" 
+		data-bind-style-top="{{data}}.windowTop" 
+		data-bind-style-background-color="{{properties}}.backgroundColor"
+		data-bind-style-border-color="{{properties}}.borderColor"
+	>
+		<div 
+			class="title" 
+			data-bind-mouseenter="onMouseEnterTitle(event)" 
+			data-bind-mouseleave="onMouseLeaveTitle(event)"
+			data-bind-style-background-color="{{properties}}.titleColor"
+		>
+			Monsters
+		</div>
+		<div class="items">
+			<div 
+				class="item" 
+				data-bind-for="i,item:{{data}}.inventory" 
+				data-bind-mouseenter="onMouseEnterItem(event, {{item}})" 
+				data-bind-mouseleave="onMouseLeaveItem(event)" 
+				data-bind-click="selectMonster({{i}})"
+				data-bind-class-toggle="active:{{item}}.active"
+			>
+				<div class="item-icon" data-bind-style-background-image-url="{{item}}.icon"></div>
+				<div class="item-details" data-bind-if="!!{{item}}.name">
+					<div class="item-top-details">
+						<div class="item-name"  data-bind-value="{{item}}.name"></div>
+						<div class="item-level" data-bind-value="'lv.' + {{item}}.level"></div>
+					</div>
+					<div class="hp-bar-container">
+						<div class="hp-bar" data-bind-class="getHpColor({{data}}.friendly)" data-bind-style-width="Math.ceil((Math.max(0, {{item}}.hp / {{item}}.maxHp)) * 100) + '%'"></div>
+					</div>
+					<div class="hp-text" data-bind-value="{{item}}.hp + '/' + {{item}}.maxHp"></div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="close-button fa" data-bind-click="handleClose()">&#xf00d;</div>
+	</div>
+	
+	<div 
+		class="item-popover" 
+		data-bind-if="{{data}}.popoverVisible && (!!{{data}}.focusedItem.name || !!{{data}}.focusedItem.description)" 
+		data-bind-style-left="{{data}}.popoverLeft" 
+		data-bind-style-top="{{data}}.popoverTop"
+		data-bind-style-border-color="{{properties}}.borderColor"
+		data-bind-style-background-color="{{properties}}.backgroundColor"
+	>		
+		<div class="item-popover-name" data-bind-value="{{data}}.focusedItem.name" data-bind-style-background-color="{{properties}}.titleColor"></div>
+		<div class="item-popover-desc">
+			<div class="stat" data-bind-for="stat:{{data}}.focusedItem.stats">
+				<div class="item-top-details">
+					<div class="item-name"  data-bind-value="{{stat}}.name"></div>
+					<div class="item-level" data-bind-value="'lv.' + {{stat}}.level"></div>
+				</div>
+				<div class="hp-bar-container" data-bind-if="{{stat}}.name === 'Level'">
+					<div class="xp-bar" data-bind-style-width="Math.ceil((Math.max(0, {{stat}}.xp / {{stat}}.requiredXp)) * 100) + '%'"></div>
+				</div>
+				<div data-bind-if="{{stat}}.name === 'Level'" class="xp-text" data-bind-value="{{stat}}.xp + '/' + {{stat}}.requiredXp"></div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="right-click-menu" data-bind-if="{{data}}.secondaryMenuOpen && ({{data}}.secondaryItem.usable || {{data}}.secondaryItem.examinable || {{data}}.secondaryItem.droppable)" data-bind-style-left="{{data}}.secondaryLeft" data-bind-style-top="{{data}}.secondaryTop">
+		<div class="right-click-button" data-bind-if="{{data}}.secondaryItem.usable" data-bind-click="useItem({{data}}.secondaryItem)">Use</div>
+		<div class="right-click-button" data-bind-if="{{data}}.secondaryItem.examinable" data-bind-click="examineItem({{data}}.secondaryItem)">Examine</div>
+		<div class="right-click-button" data-bind-if="{{data}}.secondaryItem.droppable" data-bind-click="dropItem({{data}}.secondaryItem)">Drop</div>
+
+	</div>
+	<script>
+	
+		class StyleBorderColorHandler {
+			update(element, value) {
+				element.style.borderColor = value;
+			}
+		}
+	
+		engine.registerBindingAttribute("style-border-color", StyleBorderColorHandler);
+		
+		function selectMonster(index) {
+			Crayta.callLua("SelectMonster", index + 1)
+		}
+	
+		engine.createJSModel("data", {
+			popoverLeft: 0,
+			popoverTop: 0,
+			popoverVisible: false,
+			popoverName: "",
+			popoverDesc: "",
+			
+			overTitle: false,
+			windowLeft: "50vw",
+			windowTop: "10vh",
+			
+			/**
+			focusedItem: {
+				name: "test", usable: true, droppable: true, examinable: true
+			},
+			**/
+			
+			focusedItem: null,
+			secondaryItem: null,
+			
+			secondaryMenuOpen: false,
+			secondaryLeft: null,
+			secondaryTop: null,
+			
+			mouseDown: false,
+			mouseDownX: null,
+			mouseDownY: null,
+			origWinX: null,
+			origWinY: null,
+			
+			
+			mouseX: 0,
+			mouseY: 0,
+			
+			movingWindow: false,
+			
+			inventory: [
+				{ 
+					name: "Test", 
+					level: "10", 
+					description: "lorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsumlorem ipsum", 
+					count: 10, 
+					hp: 100,
+					maxHp: 175,
+					active: true,
+					icon: "https://live.content.crayta.com/ui_image/530abf53-b349-44ad-8457-002dda5abb20_ui_image",
+					stats: [
+						{ name: "strength", level: 10, xp: 1000, requiredXp: 1250 }
+					]
+				}, {},
+			],
+		})	
+		
+		function getHpColor(mon) {
+			const p = mon.hp / mon.maxHp;
+			if(p < 0.25) {
+				return "red";
+			} else if(p < 0.5) {
+				return "yellow";
+			} else {
+				return "green";
+			}
+		}
+		
+		function handleClose() {
+			Crayta.callLua("CloseMenuOption", "Monsters")
+		}
+		
+		function useItem(item) {
+			Crayta.callLua("UseItem", item.templateName)
+		}
+		
+		function dropItem(item) {
+			Crayta.callLua("DropItem", item.templateName)
+		}
+		
+		function examineItem(item) {
+			Crayta.callLua("ExamineItem", item.examineText)
+		}
+		
+		function onMouseMove(e) {
+			data.popoverLeft = e.clientX + 25;
+			data.popoverTop = e.clientY + 25;
+			
+			data.mouseX = e.clientX;
+			data.mouseY = e.clientY;
+			
+			if(data.overTitle && data.mouseDown || data.movingWindow) {
+				const rect = e.target.getBoundingClientRect();
+				if(data.mouseDownX === null) {
+					data.mouseDownX = e.clientX;
+					data.mouseDownY = e.clientY;
+					data.origWinX = rect.left;
+					data.origWinY = rect.top;
+					data.movingWindow = true;
+				}
+						
+				const offsetX = data.mouseDownX - e.clientX;
+				const offsetY = data.mouseDownY - e.clientY;
+				
+				data.windowLeft = data.origWinX - offsetX;
+				data.windowTop = data.origWinY - offsetY;
+			}
+		
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onBodyClick() {
+			data.secondaryMenuOpen = false;
+			Crayta.callLua("FocusMenuOption", "Quests")
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseEnterItem(e, item) {
+			data.popoverVisible = true;
+			
+			data.focusedItem = item;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseLeaveItem(e) {
+			data.popoverVisible = false;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseEnterTitle(e) {
+			data.overTitle = true;
+		}
+		
+		function onMouseLeaveTitle(e) {
+			data.overTitle = false;
+		}
+		
+		engine.on("LocalOnButtonPressed", btn => {	
+			if(btn === "primary") {
+				data.mouseDown = true;
+				
+				engine.synchronizeModels();
+				engine.updateWholeModel(data);
+			}
+			if(btn === "secondary" && data.popoverVisible) {
+				data.secondaryMenuOpen = true;
+				data.secondaryLeft = data.mouseX;
+				data.secondaryTop = data.mouseY;
+				data.secondaryItem = data.focusedItem;
+				
+				engine.synchronizeModels();
+				engine.updateWholeModel(data);
+			}
+		})
+		
+		engine.on("LocalOnButtonReleased", btn => {
+			if(btn === "primary") {
+				data.mouseDown = false;
+				data.mouseDownX = null;
+				data.mouseDownY = null;
+				data.movingWindow = false;
+				engine.synchronizeModels();
+				engine.updateWholeModel(data);
+			}
+		})
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,590 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="signTitle" type="text"></property>
+		<property name="signText" type="text"></property>
+		
+		<property name="titleSize" type="number" default="4"></property>
+		<property name="textSize" type="number" default="2"></property>
+		<property name="fadeSet" type="boolean" default="true"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		@font-face {
+			font-family: PressStart2P;
+			src: url(https://content.crayta.com/fonts/PressStart2P-Regular.ttf);
+			font-weight: 400; 
+			font-style: normal
+		}
+		
+		body {
+			height: 100vh;
+			width: 100vw;
+			overflow: hidden;
+			font-family: PressStart2P;
+		}
+		
+		.fade {
+			animation: fadeIn;
+            animation-duration: 2s; 
+            animation-fill-mode: forwards;
+		}
+		
+		.container {
+			display: flex;
+			flex-wrap: wrap;
+			flex: 1;
+			background: repeating-linear-gradient(
+			  162deg,
+  			#606dbcE0,
+  			#606dbcE0 5px,
+  			#465298E0 10px,
+  			#465298E0 20px
+			);	
+		}
+		
+		.row {
+			display: flex;
+			justify-content: space-between;
+			flex-direction: column;
+			flex: 1;
+		}
+		
+		.info {
+			background-color: white;
+			border: 3px solid black;
+			margin: 1rem;
+			padding: 1rem;
+			height: 10rem;
+			
+		}
+		
+		.damage {
+			animation: bounce;
+            animation-duration: 1s; 
+            animation-fill-mode: both; 
+		}
+		
+		.name {
+			padding: 1rem;
+			font-size: 2rem;
+			
+		}
+		
+		.hp-bar-container {
+			margin-left: 1rem;
+			margin-right: 1rem;
+			border: 3px solid black;
+		}
+		
+		.hp-bar {
+			width: 100%;
+			height: 2rem;
+			background-color: green;
+			transition: width 0.5s linear;
+			
+		}
+		
+		.hp-text {
+			display: flex;
+			justify-content: flex-end;
+			font-size: 1.25rem;
+			margin-top: 0.5rem;
+		}
+		
+		.monster {
+			position: relative;
+			z-index: 1;
+			flex: 1;
+		}
+		
+		.monster-image {
+			background-repeat: no-repeat;
+			background-size: contain;
+			background-position: center;   
+			height: 40rem;
+			width: 40rem;   
+			z-index: 2;
+			align-self: center;  	
+			position: relative;
+		}
+		
+		.circle {
+			position: absolute;
+		    background-color: rgba(255, 255, 255, 0.5);
+		    height: 15rem;
+		    width: 40rem;
+		    border-radius: 50%;
+		    bottom: 1rem;
+		    left: 20%;
+		    z-index: 1;
+		}
+		
+		.circle.opponent {
+			height: 10rem;
+		    width: 35rem;
+		    left: 25%;
+		    bottom: 6rem;
+		}
+		
+		.reverse {
+			transform: scaleX(-0.75) scaleY(0.75) translateX(-15%);
+		}
+		
+		.floating {
+			transform: translateY(-5%);
+  		animation: floater 5.5s infinite;
+  		transition: ease 0.5s;
+		}
+		
+		.menu {
+			width: 100%;
+			height: 23%;
+			align-self: flex-end;
+			display: flex;
+			flex-direction: row;
+			border: 4px solid black;
+		}
+		
+		.text {
+			flex: 1;
+			background-color: #413f34;
+			width: 50vw;
+			font-size: 2.5rem;
+			line-height: 3rem;
+			padding: 1rem;
+			color: white;
+			text-shadow: 0 0 10px black;
+			position: relative;
+		}
+		
+		.back-button {
+			background-color: white;
+			border: 2px solid black;
+			color: black;
+			text-shadow: 0 0 10px white;
+			position: absolute;
+			bottom: 0.5rem;
+			right: 0rem;
+			padding: 0.25rem;
+			font-size: 2rem;
+		}
+		
+		.move-desc {
+			flex: 1;
+			display: flex;
+			
+			background-color: white;
+			border: 2px solid black;
+			padding: 1rem;
+			color: black;
+			text-shadow: none;
+		}
+		
+		.move-info {
+			flex: 1;
+		}
+		
+		.move-stats {
+			font-size: 1.5rem;
+			width: 20%;
+		}
+		
+		.move-stat {
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		.move-name {
+			display: flex;
+			font-size: 3rem;
+			justify-content: space-between;
+		}
+		
+		.move-description {
+			font-size: 1.75rem;
+		}
+		
+		.menu-items {
+			flex: 1;
+			background-color: #413f34;
+			display: flex;
+			flex-direction: column;
+			align-items: space-around;
+			flex-wrap: wrap;
+			width: 50vw;
+		}
+		
+		.menu-item {
+			background-color:white;
+			font-size: 3rem;
+			
+			flex: 1;
+			margin: 0.5rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-basis: 0;
+			width: 50%;
+			border: 2px solid black;
+		}
+		
+		.menu-item:hover {
+			background-color: #00c7c7 ;
+		}
+		
+		.back-button:hover {
+			background-color: #00c7c7;
+		}
+		
+		.menu-item-row {
+			display: flex;
+			height: 50%;
+			flex: 1;
+			
+		}
+		
+		.menu-item.empty {
+			opacity: 0.75;
+		}
+		
+		.menu-item.empty:hover {
+			background-color: white;
+		}
+		
+		.green {
+			background-color: green;
+		}
+		
+		.yellow {
+			background-color: yellow;
+		}
+		
+		.red { 
+			background-color: red;
+		}
+		
+		.lightred { 
+			background-color: #ffbdbd;
+		}
+		
+		.lightgreen { 
+			background-color: #00c7c7 ;
+		}
+		
+		.top-info {
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		@keyframes fadeIn {
+	 		0% { 
+	 			opacity: 0;
+	 		 	background-color:white;
+	 		}
+	  	100% { 
+	  		opacity: 1; 
+	  	}
+		}
+		
+		 @keyframes floater { 
+	    	0% {
+	    		transform: translateY(-5%);
+	    		transition: ease 0.5s;
+	    	}
+	  	50% {
+	  		transform: translateY(5%);
+	  		transition: ease 0.5s;
+	  	}
+         }
+		
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="info lightred">
+				<div class="top-info">
+					<div class="name" data-bind-value="{{data}}.opponent.name"></div>
+					<div class="name" data-bind-value="'lv.' + {{data}}.opponent.level"></div>
+				</div>
+				<div class="hp-bar-container">
+					<div class="hp-bar" data-bind-class="getHpColor({{data}}.opponent)" data-bind-style-width="Math.ceil((Math.max(0, {{data}}.opponent.hp / {{data}}.opponent.maxHp)) * 100) + '%'"></div>
+				</div>
+				
+				<div class="hp-text" data-bind-value="{{data}}.opponent.hp + '/' + {{data}}.opponent.maxHp"></div>
+			</div>
+			<div class="monster">
+				<div class="monster-image" data-bind-style-background-image-url="{{data}}.friendly.monsterImage"></div>
+				<div class="circle"></div>	
+			</div>
+		</div>
+		<div class="row">
+			<div class="monster">
+				<div class="monster-image reverse" data-bind-style-background-image-url="{{data}}.opponent.monsterImage"></div>
+				<div class="circle opponent"></div>	
+			</div>
+			<div class="info lightgreen">
+				<div class="top-info">
+					<div class="name" data-bind-value="{{data}}.friendly.name"></div>
+					<div class="name" data-bind-value="'lv.' + {{data}}.friendly.level"></div>
+				</div>
+				<div class="hp-bar-container">
+					<div class="hp-bar" data-bind-class="getHpColor({{data}}.friendly)" data-bind-style-width="Math.ceil((Math.max(0, {{data}}.friendly.hp / {{data}}.friendly.maxHp)) * 100) + '%'"></div>
+				</div>
+				<div class="hp-text" data-bind-value="{{data}}.friendly.hp + '/' + {{data}}.friendly.maxHp"></div>
+			</div>
+		</div>
+		<div class="row menu">
+			<div class="text" data-bind-if="!{{data}}.selectedMove" data-bind-click="handleMessageClick()">
+				<div data-bind-value="{{data}}.message"></div>
+				<div class="back-button button" data-bind-if="!!{{data}}.showMoves" data-bind-click="goBack()">Back</div>
+			</div>
+			
+			<div class="text" data-bind-if="!!{{data}}.selectedMove">
+				<div class="move-desc">
+					<div class="move-info">
+						<div class="move-name" data-bind-value="{{data}}.selectedMove.name"></div>
+						<div class="move-description" data-bind-value="{{data}}.selectedMove.description"></div>
+					</div>
+					<div class="move-stats">
+						<div class="move-stat">
+							<div>PP</div>
+							<div data-bind-value="{{data}}.selectedMove.remainingMoves + '/' + {{data}}.selectedMove.pp"></div>
+						</div>
+						<div class="move-stat">
+							<div>PWR</div>
+							<div data-bind-value="{{data}}.selectedMove.power"></div>
+						</div>
+						<div class="move-stat">
+							<div>ACC</div>
+							<div data-bind-value="{{data}}.selectedMove.accuracy"></div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+			<div class="menu-items" data-bind-if="!{{data}}.fullMessage && !{{data}}.showMoves">
+				<div class="menu-item-row">
+					<div class="menu-item" data-bind-click="fight()">Fight</div>
+					<div class="menu-item" data-bind-click="useItem()">Items</div>
+				</div>
+				<div class="menu-item-row">
+					<div class="menu-item" data-bind-click="switchMonster()">Switch</div>
+					<div class="menu-item" data-bind-click="escape()">Escape</div>
+				</div>
+			</div>
+			<div class="menu-items" data-bind-if="{{data}}.showMoves">
+				<div class="menu-item-row">
+					<div 
+						class="menu-item" 
+						data-bind-mouseover="hoverMove({{data}}.friendly.moves[0])"
+						data-bind-mouseout="deselectMove()"
+						data-bind-click="useMove({{data}}.friendly.moves[0].id)" 
+						data-bind-class-toggle="empty:!{{data}}.friendly.moves[0].id" 
+						data-bind-value="{{data}}.friendly.moves[0].name"
+					></div>
+					
+					<div 
+						class="menu-item" 
+						data-bind-mouseover="hoverMove({{data}}.friendly.moves[1])"
+						data-bind-mouseout="deselectMove()"
+						data-bind-click="useMove({{data}}.friendly.moves[1].id)" 
+						data-bind-class-toggle="empty:!{{data}}.friendly.moves[1]" 
+						data-bind-value="{{data}}.friendly.moves[1].name"
+					></div>
+				</div>
+				<div class="menu-item-row">
+					<div 
+						class="menu-item"
+						data-bind-mouseover="hoverMove({{data}}.friendly.moves[2])"
+						data-bind-mouseout="deselectMove()"
+						data-bind-click="useMove({{data}}.friendly.moves[2].id)" 
+						data-bind-class-toggle="empty:!{{data}}.friendly.moves[2]" 
+						data-bind-value="{{data}}.friendly.moves[2].name"
+					></div>
+					<div 
+						class="menu-item" 
+						data-bind-mouseover="hoverMove({{data}}.friendly.moves[3])"
+						data-bind-mouseout="deselectMove()"
+						data-bind-click="useMove({{data}}.friendly.moves[3].id)" 
+						data-bind-class-toggle="empty:!{{data}}.friendly.moves[3]" 
+						data-bind-value="{{data}}.friendly.moves[3].name"
+					></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	
+		function useItem() {
+			if(!data.enabled) return;
+			
+			Crayta.callLua("BattleScreenUseItem")
+		}
+		
+		function hoverMove(move) {
+			if(!data.enabled) return;
+			
+			data.selectedMove = move;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function deselectMove() {
+			if(!data.enabled) return;
+			
+			data.selectedMove = null;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+	
+		function getHpColor(mon) {
+			const p = mon.hp / mon.maxHp;
+			if(p < 0.25) {
+				return "red";
+			} else if(p < 0.5) {
+				return "yellow";
+			} else {
+				return "green";
+			}
+		}
+		
+		function switchMonster() {
+			if(!data.enabled) return;
+			
+			Crayta.callLua("BattleScreenSelectNewMonster")
+		}
+	
+		function escape() {
+			if(!data.enabled) return;
+			
+			Crayta.callLua("BattleScreenEscape")
+		}
+		
+		function fight() {
+			if(!data.enabled) return;
+			
+			console.log("Pressing fight")
+			data.showMoves = true;
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+			
+			// I dont know why I have to run this twice
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function useMove(id) {
+			if(!data.enabled) return;
+			
+			console.log("Using move", id);
+			if(id) {
+				data.selectedMove = null;
+				Crayta.callLua("BattleScreenUseMove", id);
+				
+				engine.synchronizeModels();
+				engine.updateWholeModel(data);
+			}
+			
+		}
+		
+		function goBack() {
+			data.showMoves = false;
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function handleMessageClick() {
+			if(!data.enabled) return;
+			
+			if(data.fullMessage) {
+				Crayta.callLua("ContinueMessage");
+			}
+		}
+			
+		engine.createJSModel("data", {
+			message: "Critical hit! Cat Jam takes 50 damage",
+			fullMessage: false,
+			showMoves: false,
+			enabled: true,
+			opponent: {
+				name: "Cat Jam",
+				hp: 5,
+				level: 1,
+				maxHp: 200,
+				monsterImage: "https://live.content.crayta.com/ui_image/689f43d1-8677-4a12-a07c-6a319396d4fb_ui_image"
+			},
+			friendly: {
+				name: "Cat Jam 2",
+				hp: 50,
+				level: 1,
+				maxHp: 200,
+				monsterImage: "https://live.content.crayta.com/ui_image/689f43d1-8677-4a12-a07c-6a319396d4fb_ui_image",
+				moves: [
+					{
+						id: "test",
+						name: "Test",
+						description: "Lorem Ipsum",
+						power: 99,
+						accuracy: 99,
+						pp: 99,
+						remainingMoves: 99
+					},
+					{
+						id: "Foo",
+						name: "Foo"
+					},
+				]
+
+			}
+		})
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

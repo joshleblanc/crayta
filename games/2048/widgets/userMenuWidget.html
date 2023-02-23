@@ -1,0 +1,654 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen"></default-asset-property>
+			<default-asset-property name="visible" value="true"></default-asset-property>
+			<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+		</default-asset-properties>
+
+		<style type="text/css">
+			/* YOUR CSS CODE HERE */
+
+			/* To keep your UI widget looking consistent across multiple screen sizes,
+			   we recommended using 'rem' units instead of 'px' units wherever possible.
+			   1rem is equivalent to 16px (pixels) at HD resolution. */
+
+			/* You can preview what the widget will look like at different screen sizes / resolutions
+			   by clicking the appropriate button located at the top-right of the editor viewport
+			   when you have one or more widgets selected in the world tree.
+
+			/* Try customising your widget by changing the `h2` property `font-size: 2rem` to `font-size: 3rem` */
+
+	
+			@font-face {
+				font-family: Barlow;
+				src: url(https://content.crayta.com/fonts/Barlow-Black.ttf);
+				font-weight: 400; 
+				font-style: normal
+			}
+			
+			@font-face {
+			   font-family: 'Font Awesome';
+			   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+			}
+			
+			@font-face {
+				font-family: Bungee;
+				src: url(https://content.crayta.com/fonts/Bungee-Regular.ttf);
+				font-weight: 400; 
+				font-style: normal
+			}
+			
+			.fa {
+			   font-family: 'Font Awesome';
+			}
+			
+				
+			@font-face {
+				font-family: Barlow;
+				src: url(https://content.crayta.com/fonts/Barlow-Medium.ttf);
+				font-weight: 500; 
+				font-style: normal
+			}
+
+			.barlow_black {
+				font-family: Barlow;
+				font-weight: 400; 
+				font-style: normal
+			}
+			
+			.barlow_medium {
+				font-family: Barlow;
+				font-weight: 500; 
+				font-style: normal
+			}
+			
+			body {
+				width: 100vw;
+				height: 100vh;
+				font-family: Barlow;
+				font-weight: 500;
+			}
+
+			.container {	
+				display: flex;
+				justify-content: space-between;
+				flex-wrap: wrap;
+				flex-grow: 1;
+				margin: 3rem;
+			}
+			
+			.container.thin {
+				margin: 0;
+			}
+			
+			.col {
+				flex: 1;
+				margin-left: 2rem;
+				margin-right: 2rem;
+			}
+			
+			.player-bar {
+				background-color: rgba(0, 200, 175, 1);
+				border-radius: 0 40px 0 0;
+				border: 2px solid cyan;
+			}
+			
+			.player-avatar {
+				flex: 1;
+				background-size: contain;
+				background-repeat: no-repeat
+			}
+			
+			.player-bar--top {
+				display: flex;
+			}	
+			
+			.player-bar--bottom {
+				background-color: black;
+				flex: 1;
+				display: flex;
+				position: relative;
+				height: calc(1rem - 4px);
+			}
+			
+			.player-bar-xp {
+				position: absolute;
+				flex: 1;
+				top: 0;
+				left: 0;
+				width: 90%;
+				height: calc(1rem - 4px);
+				background-color: rgba(0, 100, 200, 1);
+			}
+			
+			.player-info {
+				display: flex;
+				flex: 1;
+				justify-content: space-between;
+				margin: 1rem;
+				margin-right: 3rem;
+				font-weight: 400;
+			}
+			
+			.player-name {
+				font-size: 2rem;
+				color: white;
+				margin-left: -4rem;
+				text-shadow: 2px 2px black;
+			}
+			
+			.player-level {
+				font-size: 3rem;
+				color: white;
+				text-shadow: 0px 4px black;
+				background-color: green;
+				border-radius: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 5rem;
+				height: 5rem;
+				border: 2px solid rgba(50, 225, 50, 1);
+			}
+			
+			.background {
+				position: absolute;
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+				width: 100%;
+				z-index: -1;
+			}
+			
+			.background-main {
+				flex: 1;
+				background-image: url("https://live.content.crayta.com/ui_image/5afdcf62-44c0-482d-9dc6-a938d8b3542a_ui_image");
+				animation: animate-background-main 10s linear 0s infinite;
+			}
+			
+			.background-border {
+				height: 10rem;
+				background-image: url("https://live.content.crayta.com/ui_image/09e15a8c-aa3a-4d4a-97a1-e2e9a608231d_ui_image");
+				animation: animate-background-border 10s linear 0s infinite;
+			}
+			
+			.options {
+				display: flex;
+				flex-direction: column;
+				flex: 1;
+			}
+			
+			.option {
+				margin: 1rem;
+				font-size: 4rem;
+				background-color: rgba(25, 175, 200, 1);
+				border: 8px solid rgba(25, 175, 200, 1);
+				border-radius: 40px;
+				padding-left: 3rem;
+				padding-top: 0.5rem;
+				padding-bottom: 0.5rem;
+				color: rgba(25, 50, 150, 1);
+			}
+			
+			.option:hover {
+				background-image: linear-gradient(to bottom, rgb(246, 153, 9), rgb(249, 209, 9));
+				border: 8px solid rgba(0, 200, 175, 1);
+				padding-top: 1rem;
+				padding-bottom: 1rem;
+				color: black;
+				font-weight: 400;
+			}
+			
+			@keyframes animate-background-main { 
+			    from { 
+			        background-position: 0 0;
+			    } 
+			    to { 
+			        background-position: -200px 0px;
+			    } 
+			}
+			
+			@keyframes animate-background-border { 
+			    from { 
+			        background-position: 0 0;
+			    } 
+			    to { 
+			        background-position: 200px 0px;
+			    } 
+			}
+			
+			.score {
+				display: flex;
+				font-size: 3rem;
+				justify-content: flex-end;
+				display: flex;
+				margin-right: 1rem;
+				margin-top: 0.5rem;
+				font-weight: 400;
+				margin-top: -1rem;
+			}
+			
+			.challenges-header {
+				background-color: rgba(0, 200, 175, 1);
+				border-radius: 40px 40px 0 0;
+				border: 2px solid cyan;
+				font-size: 3rem;
+				display: flex;
+				justify-content: center;
+				color: white;
+				padding: 1rem;
+				text-shadow: 0 5px black;
+				font-weight: 400;
+			}
+			
+			.challenges-header.leaderboard {
+				font-size: 2rem;
+			}
+			
+			.challenge {
+				display: flex;
+				justify-content: space-between;
+				padding: 1rem;
+				font-size: 2rem;
+				color: rgba(10, 75, 175, 1);
+				border-left: 2px solid cyan;
+				border-right: 2px solid cyan;
+				background-color: rgba(0, 200, 175, 1);
+				font-weight: 400;
+			}
+			
+			.challenge.leaderboard {
+				font-size: 1.5rem;
+				padding: 0.5rem;
+			}
+			
+			.challenges-footer {
+				background-color: rgba(0, 200, 175, 1);
+				border-radius: 0px 0px 40px 40px;
+				border: 2px solid cyan;
+				font-size: 2rem;
+				display: flex;
+				justify-content: center;
+				color: white;
+				padding: 1rem;
+				text-shadow: 0 3px black;
+				font-weight: 400;
+			}
+			
+			.challenge.completed {
+				text-decoration: line-through;
+				color: rgba(0, 0, 255, 0.25);
+			}
+			
+			.challenge-description {
+				display: flex;
+				justify-content: space-between;
+				text-shadow: 0 2px white;
+			}
+			
+			.challenge-status {
+				padding-right: 1rem;
+				visibility: hidden;
+			}
+			
+			.challenge-status.completed {
+				visibility: inherit;
+			}
+			
+			.challenge-progress {
+				display: flex;
+			}
+			
+			.leaderboards {
+				margin-top: -4rem;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;	
+				flex: 1;		
+			}
+
+			.leaderboard-category {
+				font-size: 5rem;
+				text-align: center;
+				font-weight: 400;
+				text-stroke: 0.15rem white;
+			}
+			
+			.leaderboard-insert {
+				margin-top: 2rem;
+				border-radius: 0 40px 0 0;
+			}
+			
+			.home-button {
+				background-color: rgba(0, 200, 175, 1);
+				border: 3px solid cyan;
+				border-radius: 40px 40px 40px 0px;
+				padding: 1rem;
+				margin-top: -1rem;
+				font-size: 2rem; 
+				font-weight: 400;
+				font-family: Barlow;
+			}
+			
+			.home-button:hover {
+				cursor: pointer;
+				background-color: cyan;
+				border: 3px solid rgba(0, 200, 175, 1);
+			}
+			
+			.customize {
+				display: flex;
+				flex-direction: column;
+				flex: 1;
+				justify-content: space-between;
+			}
+			
+			.customize-container {
+				display: flex;
+				flex-wrap: wrap;
+			}
+			
+			.customize-item {
+				display: flex;
+				flex-direction: column;
+				width: 20rem;
+				height: 20rem;
+				margin: 1rem;
+				background-size: contain;
+			}
+			
+			.customize-item:hover {
+				border-radius: 40px 40px 40px 40px;
+				box-shadow: 0 0 10px gold;
+				cursor: pointer;
+			}
+			
+			.customize-image {
+				flex: 1;
+				background-size: 100% 150%;
+				background-position: left 50%;
+			}
+			
+			.customize-lock {
+				font-size: 5rem;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex: 1;
+			}
+			
+			.customize-locked {
+				opacity: 0.5;
+			}
+			
+			.customize-selected {
+				background-color: gold;
+				border: 2px solid yellow;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		
+		<div class="background">
+			<div class="background-border"></div>
+			<div class="background-main"></div>
+			<div class="background-border"></div>
+		</div>
+		
+		<div class="container">
+			<div class="col">
+				<div class="player-bar">
+					<div class="player-bar--top">
+						<div class="player-avatar" data-bind-style-background-image-url="{{data.avatarUrl}}">
+						</div>
+						<div class="player-info">
+							<div class="player-name" data-bind-value="{{data.username}}">
+								
+							</div>
+							
+							<div class="player-level" data-bind-value="{{data.level}}">
+							
+							</div>
+						</div>
+					</div>
+					<div class="player-bar--bottom">
+						<div class="player-bar-xp" data-bind-style-width="{{data.xpPercent}}"></div>
+					</div>
+				</div>
+
+			</div>
+			<div class="col">
+			</div>
+			<div class="col">
+				<div class="score">
+					<span>Highcore: </span>
+					<span data-bind-value="{{data.highscore}}"></span>
+				</div>
+				<div class="score">
+					<span>Best Combo: </span>
+					<span data-bind-value="{{data.bestCombo}}"></span>
+				</div>
+			</div>
+		</div>
+		
+		<div class="menu" data-bind-if="{{data.page}} === 'menu'">
+			<div class="container">
+				<div class="col">
+					<div class="options">
+						<div class="option selected" data-bind-click="play()">
+							Play
+						</div>
+						<div class="option" data-bind-click="goToCustomize()">
+							Customize
+						</div>
+						<div class="option" data-bind-click="goToLeaderboards()">
+							Leaderboards
+						</div>
+					</div>
+				</div>
+				
+				<div class="col"></div>
+				<div class="col">
+					<div class="challenges">
+						<div class="challenges-header">
+							Daily Challenges
+						</div>
+						<div class="challenge" data-bind-for="challenge:{{data.challenges}}" data-bind-class-toggle="completed:{{challenge}}.count === {{challenge}}.progress">
+							<div class="challenge-description">
+								<div class="challenge-status fa" data-bind-class-toggle="completed:{{challenge}}.count === {{challenge}}.progress">&#xf00c;</div>
+								<span data-bind-value="{{challenge.name}}"></span>
+							</div>
+							<div class="challenge-progress">
+								<span data-bind-value="{{challenge.progress}}"></span>/<span data-bind-value="{{challenge.count}}"></span>
+							</div>
+						</div>
+						<div class="challenges-footer">
+							<span data-bind-value="{{data.challengesCompleted}}"></span>/<span data-bind-value="{{data.totalChallenges}}"></span> 
+							<span>&nbsp;Challenges Completed</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="leaderboards" data-bind-if="{{data.page}} === 'leaderboards'">
+			<div class="container">
+				<div class="col">
+					<div class="challenges-header leaderboard">
+						Best Score (Weekly)
+					</div>
+					<div data-bind-for="score:{{data.weeklyScores}}" class="challenge leaderboard">
+						<div class="challenge-description">
+							<div class="challenge-status completed" data-bind-value="{{score}}.rank"></div>
+							<span data-bind-value="{{score}}.name"></span>
+						</div>
+						<div class="challenge-progress" data-bind-value="{{score}}.score">
+							
+						</div>
+					</div>
+					<div class="leaderboard-insert">
+						<div class="challenges-header leaderboard">
+							Your Position
+						</div>
+					</div>
+					<div class="challenge leaderboard">
+						<div class="challenge-description">
+							<div class="challenge-status completed" data-bind-value="{{data.youWeekly}}.rank"></div>
+							<span data-bind-value="{{data.username}}"></span>
+						</div>
+						<div class="challenge-progress" data-bind-value="{{data.youWeekly}}.score">
+							!1123
+						</div>
+					</div>
+				</div>
+				<div class="col">
+					<div class="challenges-header leaderboard">
+						Best Score (All-Time)
+					</div>
+					<div data-bind-for="score:{{data.topScores}}" class="challenge leaderboard">
+						<div class="challenge-description">
+							<div class="challenge-status completed" data-bind-value="{{score}}.rank"></div>
+							<span data-bind-value="{{score}}.name"></span>
+						</div>
+						<div class="challenge-progress" data-bind-value="{{score}}.score">
+							
+						</div>
+					</div>
+					<div class="leaderboard-insert">
+						<div class="challenges-header leaderboard">
+							Your Position
+						</div>
+					</div>
+					<div class="challenge leaderboard">
+						<div class="challenge-description">
+							<div class="challenge-status completed" data-bind-value="{{data.youAllTime}}.rank"></div>
+							<span data-bind-value="{{data.username}}"></span>
+						</div>
+						<div class="challenge-progress" data-bind-value="{{data.youAllTime}}.score">
+							!1123
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container">
+				<button class="home-button" data-bind-click="goHome()">Go Home</button>
+			</div>
+		</div>
+		
+		<div class="customize" data-bind-if="{{data.page}} === 'customize'">
+			<div class="customize-container">
+				<div class="customize-item" data-bind-for="set:{{data.sets}}" data-bind-class-toggle="customize-locked:!{{set.unlocked}}" data-bind-click="selectSet({{set}})">
+					<div class="challenges-header" data-bind-value="{{set.name}}"></div>
+					<div class="challenge-description customize-image" data-bind-style-background-image-url="{{set.imageUrl}}">
+						<div class="customize-lock fa" data-bind-if="!{{set.unlocked}}">&#xf023;</div>
+					</div>
+					<div class="challenges-footer" data-bind-if="{{set.unlocked}}" data-bind-class-toggle="customize-selected:{{set.selected}}">
+						<span data-bind-if="{{set.selected}}">Selected</span>
+						<span data-bind-if="!{{set.selected}}">Unlocked</span>
+					</div>
+					<div class="challenges-footer" data-bind-if="!{{set.unlocked}}" data-bind-value="{{set.unlockedAt}}">
+					</div>
+				</div>
+			</div>
+			<div class="container">
+				<button class="home-button" data-bind-click="goHome()">Go Home</button>
+			</div>
+		</div>
+		
+		<script>
+			/* YOUR JAVASCRIPT CODE HERE */
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				avatarUrl: "coui://assets/icons/77bd8d8f-37e5-4f62-bc28-a53e5699b23e.png",
+				xpPercent: "10%",
+				username: "!Cereal",
+				level: "1",
+				highscore: 100,
+				bestCombo: 2048,
+				challenges: [
+					{ id: "!123", name: "!name", icon: "!icon", count: 1, progress: 1 },
+				],
+				totalChallenges: 1,
+				challengesCompleted: 1,
+				page: "menu",
+				topScores: [],
+				sets: [
+					{ id: 123, imageUrl: "https://live.content.crayta.com/ui_image/90a5e5ce-dfe9-479a-b929-fc5854b7cc26_ui_image", selected: true, name: "Forest", unlocked: true },
+					{ imageUrl: "https://live.content.crayta.com/ui_image/3ee334d8-a81d-4407-bc1e-e8ff7c05d5bf_ui_image", name: "City", unlocked: false, selected: false, unlockedAt: "Level 10" },
+				],
+				weeklyScores: [
+					{ score: 10, rank: 1, name: "!Cereal" }
+				],
+				youWeekly: { score: 10, rank: 1 },
+				youAllTime: { score: 10, rank: 1 }
+				
+			});
+			
+			function selectSet(set) {	
+				console.log("Selecting set");
+				if(set.unlocked) {
+					Crayta.callLua("MenuSelectSet", set.id);
+				}
+				
+			}
+			function play() {
+				Crayta.callLua("DoAction", "play")
+			}
+			
+			function goHome() {
+				data.page = "menu";
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();
+			}
+			
+			function goToLeaderboards() {
+				console.log("Going to leaderboards")
+				Crayta.callLua("UpdateLeaderboards")
+				data.page = "leaderboards";
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();
+			}
+			
+			function goToCustomize() {
+				console.log("Going to customize")
+				data.page = "customize";
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();
+			}
+
+			/*
+			* You can manipulate model data from Lua either through a Coherent function:
+			* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+			* 
+			* or directly, via:
+			* self:GetEntity().exampleWidget.js.data = 23
+			*/
+			engine.on("exampleCoherentFunction", function(input) {
+				exampleModel.data = input
+				engine.updateWholeModel(exampleModel);
+				engine.synchronizeModels();
+			});
+
+
+			/*
+			* You can also trigger Lua functions in game scripts on this entity by using `callLua` via a Javascript function
+			* (`event` is HTML-specific event data, which you can ignore)
+			*/
+			function exampleTriggerLuaFunction(event, data)
+			{
+				// You can pass any data to the Lua function by adding it to the end
+				Crayta.callLua("myLuaFunction", data);
+			}
+		</script>
+	</body>
+</html>

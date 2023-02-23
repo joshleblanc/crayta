@@ -1,0 +1,217 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+		<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+	</default-asset-properties>
+
+	<style type="text/css">
+		body {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			font-family: Teko;
+		}
+
+		.sign {
+			width: 100%;
+			background: rgba(0, 0, 10, 0.75);
+			color: white;
+			border: 2px solid teal;
+		}
+		
+		.sign--header {
+			width: 100%;
+			border-bottom: 2px solid teal;
+			padding-left: 1rem;
+			padding-top: 0.5rem;
+			padding-bottom: 0rem;
+			text-transform: uppercase;
+			line-height: 1;
+			
+		}
+		
+		.header--decoration {
+			font-size: 1.8rem;
+			color: #B298FC;
+			font-weight: 400;
+		}
+		
+		.sign--curse {
+			color: rgb(200, 200, 0);
+			font-size: 1.25rem;
+			font-weight: 500;
+		}
+		
+		.sign--buff {
+			color: teal;
+			font-size: 1.25rem;
+			font-weight: 500;
+		}
+		
+		.sign--body {
+			font-weight: 400;
+			font-size: 1.25rem;
+			padding-left: 1rem;
+			padding-right: 1rem;
+			padding-top: 0.5rem;
+			padding-bottom: 0.5rem;
+			height: 5rem;
+		}
+		
+		.header--name {
+			font-size: 2.5rem;
+			font-weight: 700;
+		}
+		
+		.prompt {
+			border-left: 3px solid teal;
+			background-color: rgba(0, 0, 10, 0.75);
+			color: teal;
+			font-size: 1.2rem;
+			padding: 0.2rem;
+			padding-right: 2rem;
+			margin-top: 0.5rem;
+			font-weight: 500;
+			position: relative;
+		}
+
+		@font-face {
+			font-family: Teko;
+			src: url(https://content.crayta.com/fonts/Teko-Bold.ttf);
+			font-weight: 700; 
+			font-style: normal
+		}
+		
+		@font-face {
+			font-family: Teko;
+			src: url(https://content.crayta.com/fonts/Teko-Light.ttf);
+			font-weight: 400; 
+			font-style: normal
+		}
+		
+		@font-face {
+			font-family: Teko;
+			src: url(https://content.crayta.com/fonts/Teko-Medium.ttf);
+			font-weight: 500; 
+			font-style: normal
+		}
+	
+
+		h1 {
+			font-family: Montserrat;
+		}
+		
+		.container {
+			transition: width 0.25s, height 0.5s;
+			width: 0;
+			height: 0;
+			overflow: hidden;
+		}
+		
+		.container.visible {
+			width: 400px;
+			height: 250px;
+		}
+		
+		.opening-bar {
+			position: absolute;
+			background-color: teal;
+			width: 0;
+			height: 100%;
+			transition: width 1s;
+			overflow: hidden;
+			padding-top: 2rem;
+			margin-top: 0.1rem;
+			z-index: -1;
+		}
+		
+		.opening-bar.active {
+			width: 400px;
+		}
+	</style>
+</head>
+
+<body>
+	
+	<div class="container" data-bind-class-toggle="visible:{{data.visible}}">
+		<div class="sign">
+			<div class="sign--header">
+				<div class="header--decoration">Charm</div>
+				<div class="header--name" data-bind-value="{{data.title}}"></div>
+			</div>
+			
+			<div class="sign--body">
+				<div class="sign--buff" data-bind-value="{{data.buff}}"></div>
+				<div class="sign--curse" data-bind-value="{{data.curse}}"></div>
+			</div>
+		</div>
+
+		<div class="prompt">
+			<div class="prompt-text" data-bind-html="{{data.prompt}}" coh-inline></div>
+			<div class="opening-bar" data-bind-class-toggle="active:{{data.opening}}"></div>
+		</div>
+
+</div>
+	<script>
+		/*
+		* Data models allow the widget to use data passed in via Lua to alter display in real-time
+		* e.g. <h1 data-bind-value="{{data.title}}">
+		*/
+		engine.createJSModel('data',
+		{
+			title: "Sign Title",
+			buff: "5% more damage from projectiles",
+			curse: "Increased fall damage",
+			prompt: "{interact-icon-raw} Hold to pick up",
+			visible: false,
+			opening: false
+		});
+
+		/*
+		* You can manipulate model data from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.js.data.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			data.text = text;
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		});
+		
+		engine.on("StartOpening", () => {
+			data.opening = true;
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		});
+		
+		engine.on("StopOpening", () => {
+			data.opening = false;
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		});
+
+
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

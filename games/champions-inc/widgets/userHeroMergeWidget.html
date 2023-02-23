@@ -1,0 +1,321 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="goodResource" type="string"></property>
+		<property name="evilResource" type="string"></property>
+		<property name="exitText" type="text"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		@font-face {
+		   font-family: 'Font Awesome';
+		   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+		}
+		
+		.fa {
+			font-family: "Font Awesome";
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: flex-end;
+		}
+		
+		.container {
+			display: flex;
+			flex: 1;
+			justify-content: space-between;
+			margin-bottom: 2.5vh;
+		}
+		span {
+			font-family: Montserrat;
+		}
+		
+		.panel {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			background-image: url("https://live.content.crayta.com/ui_image/9bf2c84f-65c5-4ab9-b08a-f131258eeb22_ui_image");
+			background-size: fill;
+			border: 4px solid black;
+			border-radius: 40px;
+			margin: 1rem;
+			color: white;
+			flex: 1;
+			flex-direction: column;
+		}
+		
+		.buy-button {
+			padding: 2rem;
+			display: flex;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+			justify-content: center;
+			font-size: 2rem;
+			justify-self: flex-end;
+			margin: 0.75rem;
+			filter: drop-shadow(0 0 3px black);
+			border-image: url("https://live.content.crayta.com/ui_image/13d45bd8-4553-47c5-9e0d-e9140fd87bd5_ui_image");
+			border-image-slice: 0 fill;
+		}
+		
+		.assigned-hero-container {
+			position: relative;
+		}
+		
+		.close-button {
+			width: 1.5rem;
+			height: 1.5rem;
+			background-color: red;
+			border-radius: 100%;
+			position: absolute;
+			right: -0.5rem;
+			top: -0.5rem;
+			font-family: 'Font Awesome';
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 0.7rem;
+			color: white;
+			text-shadow: unset;
+		}
+		
+		.assigned-hero {
+			border: 4px solid grey;
+			background-color: white;
+			opacity: 0.8;
+			border-radius: 20px;
+			width: 6rem;
+			height: 6rem;
+			background-size: cover;
+			background-position: center;
+			
+		}
+		
+		.assigned-hero:hover {
+			opacity: 1;
+		}
+		
+		.header {
+			display: flex;
+			justify-content: center;
+			font-size: 2rem;
+		}
+		
+		.subheader {
+			font-size: 1rem;
+		}
+		
+		.flex {
+			display: flex;
+		}
+		
+		.flex-wrap {
+			flex-wrap: wrap;
+		}
+		
+		.justify-center {
+			justify-content: center;
+		}
+		
+		.resource-container {
+			display: flex;
+			align-items: center;
+		}
+		
+		.good-resource {
+			background-image: url("https://live.content.crayta.com/ui_image/530abf53-b349-44ad-8457-002dda5abb20_ui_image");
+		}
+		
+		.evil-resource {
+			background-image: url("https://live.content.crayta.com/ui_image/fd59ede6-dc81-40fb-9ba5-ff79e333a2a7_ui_image");
+		}
+		
+		.resource {
+			width: 30px;
+			height: 30px;
+			background-size: cover;
+		}
+		
+		.inc-button {
+			margin: 1rem;
+			font-size: 2rem;
+		}
+		
+		.disabled {
+			opacity: 0.5;
+		}
+		
+		.justify-space-around {
+			justify-content: space-around;
+		}
+		
+		.success-chance {
+			position: absolute;
+			display: flex;
+			flex-direction: column;
+			padding: 2rem;
+			font-size: 2rem;
+			color: white;
+			bottom: 20vh;
+			align-items: center;
+			text-shadow: 0 0 2px black;
+		}
+		
+		.exit-instructions {
+			position: absolute;
+			left: 1rem;
+			bottom: 1rem;
+			color: white;
+			text-shadow: 0 0 2px black;
+		}
+	</style>
+</head>
+
+<body>
+
+
+	<div class="container">
+		<div class="panel">
+			<div class="header">Step 1</div>
+			<div class="header subheader">Select Heroes</div>
+			<div class="flex justify-space-around">
+				<div class="assigned-hero-container">
+					<div class="assigned-hero" data-bind-click="selectHero(1)" data-bind-style-background-image-url="{{data}}.heroes[0].iconUrl"></div>
+					<div class="close-button" data-bind-if="!!{{data}}.heroes[0].id" data-bind-click="removeHero(1)">&#xf00d;</div>
+				</div>
+				<div class="assigned-hero-container">
+					<div class="assigned-hero" data-bind-click="selectHero(2)" data-bind-style-background-image-url="{{data}}.heroes[1].iconUrl"></div>
+					<div class="close-button" data-bind-if="!!{{data}}.heroes[1].id" data-bind-click="removeHero(2)">&#xf00d;</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel">
+			<div class="header">Step 2</div>
+			<div class="header subheader">Use Resources</div>
+			<div class="flex justify-center">
+				<div class="resource-container">
+					<div class="fa inc-button" data-bind-click="decGoodResource()">&#xf068;</div>
+					<div data-bind-value="{{data}}.goodResource"></div>
+					<div class="resource good-resource"></div>
+					<div class="fa inc-button" data-bind-click="incGoodResource()">&#x2b;</div>
+				</div>
+				<div class="resource-container">
+					<div class="fa inc-button" data-bind-click="decEvilResource()">&#xf068;</div>
+					<div data-bind-value="{{data}}.evilResource"></div>
+					<div class="resource evil-resource"></div>
+					<div class="fa inc-button" data-bind-click="incEvilResource()">&#x2b;</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel">
+			<div class="header">Step 3</div>
+			<div class="header subheader">Merge!</div>
+			<div class="flex justify-center">
+				<div class="buy-button" data-bind-click="merge()" data-bind-class-toggle="disabled:{{data}}.heroes.length < 2">Merge!</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="success-chance">
+		<span>Chance of success</span>
+		<span data-bind-value="Math.floor({{data}}.successChance * 100) + '%'"></span>
+	</div>
+	
+	<div class="exit-instructions" data-bind-value="{{properties}}.exitText">
+		
+	</div>
+
+	<script>
+	
+		engine.createJSModel("data", {
+			heroes: [
+				{}, {}
+			],
+			goodResource: 0,
+			evilResource: 0,
+			successChance: 0.5
+		})
+		
+		function selectHero(ind) {
+			Crayta.callLua("SelectHeroForMerge", ind);
+		}
+		
+		function removeHero(ind) {
+			Crayta.callLua("RemoveHeroForMerge", ind);
+		}
+		
+		function merge() {
+			Crayta.callLua("DoMerge");
+		}
+		
+		function incGoodResource() {
+			Crayta.callLua("IncResource", "good", 1)
+		}
+		
+		function incEvilResource() {
+			Crayta.callLua("IncResource", "evil", 1)
+		}
+		
+		function decGoodResource() {
+			Crayta.callLua("IncResource", "good", -1)
+		}
+		
+		function decEvilResource() {
+			Crayta.callLua("IncResource", "evil", -1)
+		}
+		
+		engine.on("LocalOnButtonPressed", btn => {
+			if(btn === "extra2") {
+				Crayta.callLua("ExitHeroMerge")
+			}
+		})
+		
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

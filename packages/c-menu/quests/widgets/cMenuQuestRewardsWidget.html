@@ -1,0 +1,372 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+	</properties>
+
+	<style type="text/css">
+		:root {
+			--background-color: #989871;
+			--border-color: #717198;
+			--title-color: #4a4a36;
+		}
+	
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.sign {
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.75);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			font-size: 10rem;
+			color: white;
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+		
+		.reward-image {
+			height: 100%;
+			width: 100px;
+			background-size: contain;
+			background-position: center;
+			background-image: url("https://live.content.crayta.com/ui_image/25b16771-e405-4836-83ac-83a23a498f65_ui_image");
+			background-repeat: no-repeat;
+			animation: 3s ease shake-animation infinite;
+		}
+		
+		.reward-image:hover {
+			background-image: url("https://live.content.crayta.com/ui_image/bfaa36f8-9fa9-44ce-aead-72ceceee0c91_ui_image");
+			animation: unset;
+		}
+		
+		.rewards-popover {
+			position: absolute;
+			height: 30%;
+			width: 30%;
+			border: 2px solid #717198;
+			background-color: var(--background-color);
+		}
+		
+		.popover-title {
+			font-size: 3rem;
+			display: flex;
+			font-family: Montserrat;
+			justify-content: center;
+			padding-top: 1rem;
+			background-color: var(--title-color);
+			padding-bottom: 1rem;
+			border-bottom: 2px solid black;
+			color: white;
+		}
+		
+		.items {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+		
+		.item {
+			margin: 1rem;
+			width: 3rem;
+			height: 3rem;
+			border: 2px solid black;
+			position: relative;
+		}
+		
+		.item-icon {
+			width: 100%;
+			height: 100%;
+			background-position: center;
+			background-size: cover;
+		}
+		
+		.item-cnt {
+			bottom: 0;
+			right: 0;
+			font-size: 0.75rem;
+			position: absolute;
+			color: white;
+			text-shadow: 0 0 10px black;
+		}
+		
+		.item-popover {
+			position: absolute;
+			background-color: #4a4a36;
+			border: 4px solid #717198;
+			border-radius: 20px;
+			max-width: 60%;
+		}
+		
+		.item-popover-name {
+			font-size: 2rem;
+			display: flex;
+			justify-content: center;
+			margin: 0.5rem;
+			border-bottom: 2px solid black;
+			color: white;
+		}
+		
+		.item-popover-desc {
+			margin: 1rem;
+			font-size: 1.25rem;
+			color: white;
+		}
+		
+		.items-container {
+			margin-top: 2rem;
+		}
+		
+		.rewards-title {
+			font-size: 2rem;
+			display: flex;
+			justify-content: center;
+		}
+		
+		.actions {
+			display: flex;
+			justify-content: flex-end;
+			align-items: flex-end;
+			flex: 1;
+		}
+		
+		.button {
+			padding: 0.75rem;
+			border: 2px solid #717198;
+			margin-right: 1rem;
+			margin-bottom: 1rem;
+			background-color: var(--title-color);
+			color: white;
+		}
+		
+		.button:hover {
+			color: black;
+			background-color: var(--background-color);
+		}
+		
+		.container {
+			position: absolute;
+			right: 0;
+			top: 55%;
+			height: 100px;
+			width: 20%;
+			display: flex;
+			justify-content: flex-end;
+		}
+		
+		
+		@keyframes shake-animation {
+		  0% { transform: rotate(0deg); }
+		  5% { transform: rotate(5deg); }
+		  10% { transform: rotate(0eg); }
+		  15% { transform: rotate(-5deg); }
+		  20% { transform: rotate(5deg); }
+		  25% { transform: rotate(0eg); }
+		  30% { transform: rotate(-5deg); }
+		  35% { transform: rotate(0deg); }
+		}
+	</style>
+</head>
+
+<body data-bind-mousemove="onMouseMove(event)" >
+
+	<div class="container">
+		<div data-bind-for="reward:{{data}}.rewards" class="reward">
+			<div class="reward-image" data-bind-click="selectReward({{reward}})"></div>
+		</div>
+	</div>
+	
+	<div class="rewards-popover" data-bind-if="{{data}}.rewardsVisible">
+		<div class="popover-title">Quest Complete</div>
+		<div class="items-container">
+			<div class="rewards-title">Rewards</div>
+			<div class="items">
+				<div class="item" data-bind-for="item:{{data}}.selectedReward.rewards" data-bind-mouseenter="onMouseEnterItem(event, {{item}})" data-bind-mouseleave="onMouseLeaveItem(event)">
+					<div class="item-icon" data-bind-style-background-image-url="{{item}}.icon"></div>
+					<div class="item-cnt" data-bind-value="{{item}}.count" data-bind-if="{{item}}.count > 0"></div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="actions">
+			<div class="button" data-bind-click="claimRewards({{data}}.selectedReward.id)">Claim</div>
+		</div>
+	</div>
+	
+	</div>
+	
+	<div class="item-popover" data-bind-if="{{data}}.popoverVisible && (!!{{data}}.focusedItem.name || !!{{data}}.focusedItem.description)" data-bind-style-left="{{data}}.popoverLeft" data-bind-style-top="{{data}}.popoverTop">
+		<div class="item-popover-name" data-bind-value="{{data}}.focusedItem.name"></div>
+		<div class="item-popover-desc" data-bind-value="{{data}}.focusedItem.description"></div>
+	</div>
+
+	<script>
+		const queue = [];
+		
+		function onMouseMove(e) {
+			data.popoverLeft = e.clientX + 25;
+			data.popoverTop = e.clientY + 25;
+			
+			data.mouseX = e.clientX;
+			data.mouseY = e.clientY;
+			
+			if(data.overTitle && data.mouseDown || data.movingWindow) {
+				const rect = e.target.getBoundingClientRect();
+				if(data.mouseDownX === null) {
+					data.mouseDownX = e.clientX;
+					data.mouseDownY = e.clientY;
+					data.origWinX = rect.left;
+					data.origWinY = rect.top;
+					data.movingWindow = true;
+				}
+						
+				const offsetX = data.mouseDownX - e.clientX;
+				const offsetY = data.mouseDownY - e.clientY;
+				
+				data.windowLeft = data.origWinX - offsetX;
+				data.windowTop = data.origWinY - offsetY;
+			}
+		
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseEnterItem(e, item) {
+			data.popoverVisible = true;
+			
+			data.focusedItem = item;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseLeaveItem(e) {
+			data.popoverVisible = false;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function claimRewards(id) {
+			Crayta.callLua("CMenuClaimRewards", id);
+			data.selectedReward = null;
+			data.rewardsVisible = false;
+			data.rewards = data.rewards.filter(r => r.id !== id);
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		
+		function selectReward(reward) {
+			data.selectedReward = reward;
+			data.rewardsVisible = true;
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function addReward(reward) {
+			console.log("Adding reward");
+			queue.push(reward);
+			console.log("Added to queue", data.rewards.length)
+			
+			if(data.rewards.length < 3) {
+				console.log("Room to add to rewards")
+				data.rewards.push(queue.shift());
+				console.log("Added to rewards")
+				engine.synchronizeModels();
+				engine.updateWholeModel(data);
+			}
+		}
+		
+		engine.createJSModel("data", {
+			popoverLeft: 0,
+			popoverTop: 0,
+			popoverVisible: false,
+			popoverName: "",
+			popoverDesc: "",
+			popoverVisible: false,
+			
+			
+			rewardsVisible: false,
+			rewards: [
+				{ 
+					id: "foobar", 
+					rewards: [
+						{ name: "Test", description: "lorem ipsum", count: 10, icon: "https://live.content.crayta.com/ui_image/530abf53-b349-44ad-8457-002dda5abb20_ui_image" }
+					] 
+				}
+ 			],
+ 			
+ 			selectedReward: { 
+					id: "foobar", 
+					rewards: [
+						{ name: "Test", description: "lorem ipsum", count: 10, icon: "https://live.content.crayta.com/ui_image/530abf53-b349-44ad-8457-002dda5abb20_ui_image" }
+					] 
+				}
+		});
+		
+		engine.on("AddReward", reward => {
+			addReward(reward);
+		});
+		
+		engine.on("InitializeRewards", () => {
+			data.rewards = [];
+			data.rewardsVisible = false;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		})
+	
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

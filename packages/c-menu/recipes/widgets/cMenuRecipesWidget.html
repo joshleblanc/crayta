@@ -1,0 +1,475 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+	</properties>
+
+	<style type="text/css">
+		:root {
+			--background-color: #989871;
+			--border-color: #717198;
+			--title-color: #4a4a36;
+			--window-width: 50vw;
+		}
+		
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		@font-face {
+		   font-family: 'Font Awesome';
+		   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+		}
+		
+		.fa {
+		   font-family: 'Font Awesome';
+		}
+
+		body {
+			width: 100vw;
+			height: 100vh;
+		}
+
+		.close-button {
+			border-radius: 100%;
+			width: 2rem;
+			height: 2rem;
+			position: absolute;
+			right: -1rem;
+			top: -1rem;
+			background-color: red;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border: 1px solid black;
+		}
+		
+		.close-button:hover {
+			background-color: white;
+		}
+		
+		.container {
+			width: var(--window-width);
+
+			left: 40vw;
+			top: 25vh;
+			position: absolute;
+			background-color: var(--background-color);
+			border-width: 4px;
+			border-style: solid;
+			border: 4px solid #717198;
+			border-radius: 40px 0 40px 40px;
+		}
+		
+		.title {
+			display: flex;
+			justify-content: center;
+			font-size: 2rem;
+			padding: 1rem;
+			border-top-left-radius: 36px;
+
+			border-bottom: 4px solid black;
+			background-color: #4a4a36;
+			color: white;
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+		
+		.items {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+		
+		.item {
+			margin: 1rem;
+			width: 3rem;
+			height: 3rem;
+			border: 2px solid black;
+			position: relative;
+		}
+		
+		.item-icon {
+			width: 100%;
+			height: 100%;
+			background-position: center;
+			background-size: cover;
+		}
+		
+		.item-cnt {
+			bottom: 0;
+			right: 0;
+			font-size: 0.75rem;
+			position: absolute;
+		}
+		
+		.item-popover {
+			position: absolute;
+			background-color: #4a4a36;
+			border: 4px solid #717198;
+			border-radius: 20px;
+			max-width: 60%;
+		}
+		
+		.item-popover-name {
+			font-size: 2rem;
+			display: flex;
+			justify-content: center;
+			width: 10rem;
+			margin: 0.5rem;
+			border-bottom: 2px solid black;
+		}
+		
+		.item-popover-desc {
+			margin: 1rem;
+			font-size: 1.25rem;
+		}
+		
+		.right-click-menu {
+			width: 10rem;
+			font-size: 1.2rem;
+			border: 4px solid #717198;
+			z-index: 1000;
+			position: absolute;
+			background-color: #989871;
+		}
+		
+		.right-click-button {
+			padding: 0.5rem;
+			border-bottom: 4px solid #717198;
+		}
+		
+		.right-click-button:hover {
+			background-color: #c9c9b5;
+		}
+		
+		.right-click-button:last-child {
+			border: none;
+		}
+		
+		.main {
+			display: flex;
+		}
+		
+		.main-items {
+			border-right: 2px solid black;
+			width: 33%;
+		}
+		
+		.main-recipe {
+			display: flex;
+			flex: 1;
+			margin-top: 1rem;
+			flex-direction: column;
+			align-items: center;
+		}
+		
+		.selected-items {
+			width: 100%;
+			padding: 0.5rem
+		}
+		
+		.selected-item {
+			border: 2px solid black;
+			width: 100%;
+			display: flex;
+			
+		}
+		
+		.selected-item-details {
+			display: flex;
+			flex-direction: column;
+			padding: 0.75rem;
+		}
+		
+		.selected-items-header {
+			margin-bottom: 0.5rem;
+		}
+		
+		.selected-item-name {
+			font-size: 1.5rem;
+		}
+		
+		.selected-item-description {
+			font-size: 0.75rem;
+			opacity: 0.9;
+		}
+		
+		.selected-item > .item {
+			border: none;
+		}
+		
+		.selected-item:last-child {
+			border-radius: 0 0 30px 0;
+		}
+		
+		.actions {
+			display: flex;
+			justify-content: flex-end;
+			width: 100%;
+		}
+		
+		.button {
+			background-color: var(--title-color);
+			padding: 0.5rem;
+			font-size: 1.5rem;
+			color: white;
+			box-shadow: 5px 5px 0 #717198;
+			margin: 1rem;
+			margin-right: 4rem;
+		}
+		
+		.button:hover {
+			box-shadow: none;
+			transform: translate(5px, 5px);
+		}
+		
+		.disabled {
+			opacity: 0.5;
+		}
+		
+		.disabled:hover {
+			box-shadow: 5px 5px 0 #717198;
+			transform: none;
+		}
+	</style>
+</head>
+
+<body data-bind-mousemove="onMouseMove(event)" data-bind-click="onBodyClick()">
+
+	<div class="container" data-bind-style-left="{{data}}.windowLeft" data-bind-style-top="{{data}}.windowTop">
+		<div class="title" data-bind-mouseenter="onMouseEnterTitle(event)" data-bind-mouseleave="onMouseLeaveTitle(event)">Recipe</div>
+		<div class="main">
+			<div class="main-items">
+				<div class="items">
+					<div class="item" data-bind-class-toggle="disabled:{{item}}.count === 0" data-bind-click="useItem({{item}})" data-bind-for="item:{{data}}.inventory" data-bind-mouseenter="onMouseEnterItem(event, {{item}})" data-bind-mouseleave="onMouseLeaveItem(event)">
+						<div class="item-icon" data-bind-style-background-image-url="{{item}}.icon"></div>
+						<div class="item-cnt" data-bind-value="{{item}}.count" data-bind-if="{{item}}.count > 0"></div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="main-recipe">
+				<div data-bind-if="!hasSelectedItems({{data}}.selectedItems)">
+					No items selected for recipe
+				</div>
+				<div class="selected-items" data-bind-if="hasSelectedItems({{data}}.selectedItems)">
+					<div class="selected-items-header">Selected recipe components:</div>
+					<div class="selected-item" data-bind-click="removeItem({{entry}}[0])" data-bind-for="entry:Object.entries({{data}}.selectedItems)">
+						<div class="item">
+							<div class="item-icon" data-bind-style-background-image-url="findItem({{entry}}[0]).icon"></div>
+							<div class="item-cnt" data-bind-value="{{entry}}[1].count" data-bind-if="{{entry}}[1].count > 0"></div>
+						</div>
+						<div class="selected-item-details">
+							<div class="selected-item-name" data-bind-value="findItem({{entry}}[0]).name"></div>
+							<div class="selected-item-description" data-bind-value="findItem({{entry}}[0]).description"></div>
+						</div>
+						
+					</div>
+				</div>
+				<div class="actions">
+					<div class="button" data-bind-click="handleCreate()" data-bind-class-toggle="disabled:!{{data}}.isValidRecipe">Create</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<div class="close-button fa" data-bind-click="handleClose()">&#xf00d;</div>
+	</div>
+	
+	<div class="item-popover" data-bind-if="{{data}}.popoverVisible && (!!{{data}}.focusedItem.name || !!{{data}}.focusedItem.description)" data-bind-style-left="{{data}}.popoverLeft" data-bind-style-top="{{data}}.popoverTop">
+		<div class="item-popover-name" data-bind-value="{{data}}.focusedItem.name"></div>
+		<div class="item-popover-desc" data-bind-value="{{data}}.focusedItem.description"></div>
+	</div>
+	
+	<div class="right-click-menu" data-bind-if="{{data}}.secondaryMenuOpen && ({{data}}.secondaryItem.usable || {{data}}.secondaryItem.examinable || {{data}}.secondaryItem.droppable)" data-bind-style-left="{{data}}.secondaryLeft" data-bind-style-top="{{data}}.secondaryTop">
+		<div class="right-click-button" data-bind-click="useItem({{data}}.secondaryItem)">Select</div>
+
+	</div>
+	<script>
+	
+		engine.createJSModel("data", {
+			popoverLeft: 0,
+			popoverTop: 0,
+			popoverVisible: false,
+			popoverName: "",
+			popoverDesc: "",
+			
+			overTitle: false,
+			windowLeft: "25vw",
+			windowTop: "20vh",
+			
+			/**
+			focusedItem: {
+				name: "test", usable: true, droppable: true, examinable: true
+			},
+			**/
+			
+			focusedItem: null,
+			secondaryItem: null,
+			
+			secondaryMenuOpen: false,
+			secondaryLeft: null,
+			secondaryTop: null,
+			
+			mouseDown: false,
+			mouseDownX: null,
+			mouseDownY: null,
+			origWinX: null,
+			origWinY: null,
+			
+			
+			mouseX: 0,
+			mouseY: 0,
+			
+			movingWindow: false,
+			
+			inventory: [
+				{ templateName: "test", name: "Test", description: "lorem ipsum", count:0, icon: "https://live.content.crayta.com/ui_image/530abf53-b349-44ad-8457-002dda5abb20_ui_image"},
+				{}, {}, {}, {}, {}, {}, {}, {}, {}, {} , {}, {}, {}, {}, {}, {}, {}, {}, {}, {} 
+			],
+			
+			selectedItems: {
+				test: { count: 1 },
+			},
+			isValidRecipe: false,
+		})
+		
+		function handleCreate() {
+			if(data.isValidRecipe) {
+				Crayta.callLua("CreateRecipe")
+			}
+		}
+		
+		function findItem(templateName) {
+			return data.inventory.find(i => i.templateName === templateName)
+		}
+		
+		function hasSelectedItems(items) {
+			return Object.entries(items).length > 0;
+		}	
+		
+		function handleClose() {
+			Crayta.callLua("CloseMenuOption", "Recipes")
+		}
+		
+		function useItem(item) {
+			if(item.count > 0) {
+				Crayta.callLua("SelectItem", item.templateName)
+			}
+			
+		}
+		
+		function removeItem(item) {
+			Crayta.callLua("RemoveItem", item);
+		}
+		
+		function onMouseMove(e) {
+			data.popoverLeft = e.clientX + 25;
+			data.popoverTop = e.clientY + 25;
+			
+			data.mouseX = e.clientX;
+			data.mouseY = e.clientY;
+			
+			if(data.overTitle && data.mouseDown || data.movingWindow) {
+				const rect = e.target.getBoundingClientRect();
+				if(data.mouseDownX === null) {
+					data.mouseDownX = e.clientX;
+					data.mouseDownY = e.clientY;
+					data.origWinX = rect.left;
+					data.origWinY = rect.top;
+					data.movingWindow = true;
+				}
+						
+				const offsetX = data.mouseDownX - e.clientX;
+				const offsetY = data.mouseDownY - e.clientY;
+				
+				data.windowLeft = data.origWinX - offsetX;
+				data.windowTop = data.origWinY - offsetY;
+			}
+		
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onBodyClick() {
+			data.secondaryMenuOpen = false;
+			Crayta.callLua("FocusMenuOption", "Quests")
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseEnterItem(e, item) {
+			data.popoverVisible = true;
+			
+			data.focusedItem = item;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseLeaveItem(e) {
+			data.popoverVisible = false;
+			
+			engine.synchronizeModels();
+			engine.updateWholeModel(data);
+		}
+		
+		function onMouseEnterTitle(e) {
+			data.overTitle = true;
+		}
+		
+		function onMouseLeaveTitle(e) {
+			data.overTitle = false;
+		}
+		
+		engine.on("LocalOnButtonPressed", btn => {	
+			if(btn === "primary") {
+				data.mouseDown = true;
+				
+				engine.synchronizeModels();
+				engine.updateWholeModel(data);
+			}
+			if(btn === "secondary" && data.popoverVisible) {
+				data.secondaryMenuOpen = true;
+				data.secondaryLeft = data.mouseX;
+				data.secondaryTop = data.mouseY;
+				data.secondaryItem = data.focusedItem;
+				
+				engine.synchronizeModels();
+				engine.updateWholeModel(data);
+			}
+		})
+		
+		engine.on("LocalOnButtonReleased", btn => {
+			if(btn === "primary") {
+				data.mouseDown = false;
+				data.mouseDownX = null;
+				data.mouseDownY = null;
+				data.movingWindow = false;
+				engine.synchronizeModels();
+				engine.updateWholeModel(data);
+			}
+		})
+	</script>
+</body>
+
+</html>

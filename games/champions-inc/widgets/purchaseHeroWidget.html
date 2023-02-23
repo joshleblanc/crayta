@@ -1,0 +1,253 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="World"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="name" type="text"></property>
+		<property name="description" type="text"></property>
+		<property name="price" type="number"></property>
+		<property name="rarity" type="string"></property>
+		
+		<property name="purchaseText" type="text"></property>
+		<property name="canAfford" type="boolean"></property>
+		<property name="purchased" type="boolean"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			overflow: hidden;
+		}
+
+		.container {
+			border-image: url("https://live.content.crayta.com/ui_image/98ac8369-e85a-45e3-a58f-8d92feae1232_ui_image");
+			border-image-slice: 0 fill;
+			border-radius: 40px;
+			display: flex;
+			flex: 1;
+			margin: 2rem;
+			padding: 8rem;
+			flex-direction: column;
+			filter: drop-shadow(0 0 10px black);
+		}
+		
+		.name {
+			font-size: 2rem;
+			color: white;
+			justify-content: center;
+			display: flex;
+			width: 100%;
+		}
+		
+		.divider {
+			border-bottom: 2px solid black;
+			padding-bottom: 1rem;
+		}
+		
+		.red {
+			color: red !important;
+		}
+		
+		.green {
+			color: green !important;
+		}
+		
+		.description {
+			color: white;
+			padding-top: 1rem;
+			font-size: 1.2rem;
+		}
+		
+		.stats {
+			display: flex;
+			color: white;
+			flex-wrap: wrap;
+			justify-content: center;
+			border: 2px solid black;
+			border-radius: 20px;
+		}
+		
+		.stat {
+			align-items: center;
+			display: flex;
+			flex-direction: column;
+			padding: 1rem;
+		}
+		
+		.icon {
+			width: 2rem;
+			height: 2rem;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center;
+			border-radius: 0.5rem;
+		}
+		
+		.label {
+			font-size: 2rem;
+			color: white;
+			margin-top: 2rem;
+			margin-bottom: 0.5rem;
+			display: flex;
+			justify-content: center;
+		}
+		
+		.price {
+			display: flex;
+			color: white;
+			margin-top: 2rem;
+			font-size: 2.5rem;
+			justify-content: center;
+			text-shadow: 2px 2px 2px black;
+		}
+		
+		.price span:nth-child(2) {
+			margin-left: 1rem;
+		}
+		
+		.buy-button {
+			padding: 2rem;
+			display: flex;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+			justify-content: center;
+			font-size: 2rem;
+			justify-self: flex-end;
+			margin: 0.75rem;
+			border-image: url("https://live.content.crayta.com/ui_image/13d45bd8-4553-47c5-9e0d-e9140fd87bd5_ui_image");
+			border-image-slice: 0 fill;
+		}
+		
+		.buy-button:hover {
+			filter: drop-shadow(0 0 10px white);
+		}
+		
+		.buy-button.disabled:hover {
+			cursor: not-allowed;
+		}
+		
+		.buy-button.disabled {
+			opacity: 0.5;
+		}
+		
+		.bottom {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+			flex: 1;
+		}
+		
+		.rarity {
+			font-size: 1rem;
+			display: flex;
+			justify-content: center;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+		}
+		
+		.Common {
+			color: white;
+		}
+		
+		.Uncommon {
+			color: green;
+		}
+		
+		.Rare {
+			color: yellow;
+		}
+		
+		.Exotic {
+			color: orange;
+		}
+		
+		.Legendary {
+			color: purple;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="name" data-bind-value="{{properties.name}}"></div>
+		<div class="rarity" data-bind-class="{{properties}}.rarity" data-bind-value="{{properties}}.rarity"></div>
+		<div class="divider"></div>
+		<div class="description" data-bind-html="{{properties.description}}"></div>
+		<div class="label">Stats</div>
+		<div class="stats">
+			<div class="stat" data-bind-for="stat:{{data.stats}}">
+				<div class="icon" data-bind-style-background-image-url="{{stat}}.imageUrl"></div>
+				<div data-bind-value="{{stat}}.name"></div>
+				<div data-bind-value="{{stat}}.level"></div>
+			</div>
+		</div>
+		
+		<div class="price" data-bind-if="!{{properties.purchased}} "data-bind-class-toggle="red:!{{properties.canAfford}};green:{{properties.canAfford}}">
+			<span>Price:</span>
+			<span data-bind-value="{{properties.price}}"></span>
+		</div>
+		
+		<div class="bottom">
+			<div data-bind-if="{{properties.purchased}}">
+				<div class="buy-button disable">Purchased!</div>
+			</div>
+			<div data-bind-if="!{{properties.purchased}}">
+				<div class="buy-button" data-bind-html="{{properties.purchaseText}}" data-bind-if="{{properties.canAfford}}"></div>
+				<div class="buy-button disabled" data-bind-if="!{{properties.canAfford}}">Cannot Afford</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		engine.createJSModel("data", {
+			stats: [
+				{ name: "Strength", level: 10, imageUrl: "https://live.content.crayta.com/ui_image/50ee0c14-605c-4fca-9691-ccdec5087f9f_ui_image" },
+				{ name: "Strength", level: 10, imageUrl: "https://live.content.crayta.com/ui_image/50ee0c14-605c-4fca-9691-ccdec5087f9f_ui_image" },
+				{ name: "Strength", level: 10, imageUrl: "https://live.content.crayta.com/ui_image/50ee0c14-605c-4fca-9691-ccdec5087f9f_ui_image" }
+
+			]
+		});
+	
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,311 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property type="text" name="exitText"></property>
+		<property type="boolean" name="noOptions"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			overflow: hidden;
+		}
+
+		.container {
+			border-image: url("https://live.content.crayta.com/ui_image/86f45750-e66c-4894-a690-fbb581290b72_ui_image");
+			border-image-slice: 0 fill;
+			
+			width: calc(100vw - 6rem);
+			height: calc(100vh - 6rem);
+			
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			font-size: 10rem;
+			color: white;
+			padding: 8rem;
+		}
+
+		span {
+			font-family: Montserrat;
+		}
+		
+		.heroes-container {
+			width: 93%;
+			height: 80%;
+			margin-top: 10%;
+			display: flex;
+			flex-wrap: no-wrap;
+			overflow-x: scroll;
+			padding: 1rem;
+			justify-content: center;
+		}
+		
+		.hero {
+			width: 20%;
+			height: 100%;
+			margin-right: 1rem;
+			flex: 0 0 auto;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+		}
+		
+		.buttons {
+			margin-top: 5rem;
+			display: flex;
+		}
+		
+		.buy-button {
+			padding: 2rem;
+			display: flex;
+			color: white;
+			text-shadow: 2px 2px 10px black;
+			justify-content: center;
+			font-size: 2rem;
+			justify-self: flex-end;
+			margin: 0.75rem;
+			border-image: url("https://live.content.crayta.com/ui_image/13d45bd8-4553-47c5-9e0d-e9140fd87bd5_ui_image");
+			border-image-slice: 0 fill;
+			filter: drop-shadow(0 0 3px black);
+		}
+		
+		.disabled {
+			opacity: 0.5;
+		}
+		
+		.buy-button.disabled:hover {
+			filter: none;
+		}
+		
+		.small-button {
+			padding: 1rem;
+			font-size: 1.5rem;
+			margin-left: 2rem;
+			margin-right: 2rem;
+		}
+		
+		.arrow-button {
+			border-image: url("https://live.content.crayta.com/ui_image/ff68d80d-5057-4fe8-9ae2-cf27edc4955d_ui_image");
+			border-image-slice: 0 fill;
+			width: 7rem;
+			height: 7rem;
+			margin: 1rem;
+		}
+		
+		.arrow-button.arrow-backwards {
+			transform: scaleX(-1);
+		}
+		
+		.arrow-button:hover {
+			filter: drop-shadow(0 0 10px white);
+		}
+		
+		.buy-button:hover {
+			filter: drop-shadow(0 0 10px white);
+		}
+		
+		.exit-text {
+			position: absolute;
+			left: 0;
+			color: white;
+			bottom: 1rem;
+			left: 3rem;
+			font-size: 3rem;
+			text-shadow: 2px 2px 10px black;
+		}
+		
+		.hero-name {
+			font-size: 2rem;
+			display: flex;
+			justify-content: center;
+		}
+		
+		.no-options {
+			font-size: 5rem;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="heroes-container">
+			<div class="no-options" data-bind-if="{{properties}}.noOptions">No heroes available for placement</div>
+			<div class="hero" data-bind-for="hero:state.list({{data.heroes}})">
+				<div class="hero-name" data-bind-value="{{hero}}.name"></div>
+				<div 
+					class="buy-button small-button" 
+					data-bind-click="selectHero({{hero}})"
+					data-bind-class-toggle="disabled:{{hero}}.mia || !!{{hero}}.assignedRoom"
+				>
+					<span data-bind-if="!{{hero}}.assignedRoom && {{hero}}.mia">MIA</span>
+					<span data-bind-if="!!{{hero}}.assignedRoom">Already Placed</span>
+					<span data-bind-if="!{{hero}}.mia && !{{hero}}.assignedRoom">Select</span>
+
+				</div>
+			</div>
+		</div>
+		<div class="buttons">
+			<div class="arrow-button arrow-backwards" data-bind-click="prevPage()" data-bind-class-toggle="disabled:{{data}}.prevDisabled">
+
+			</div>
+			<div class="arrow-button" data-bind-click="nextPage()" data-bind-class-toggle="disabled:{{data}}.nextDisabled">
+
+			</div>
+		</div>
+	</div>
+	
+	<div class="exit-text" data-bind-value="{{properties.exitText}}"></div>
+
+	<script>
+		const state = {};
+		const pageSize = 4;
+		
+		engine.on("Ready", function() {
+			state.list = engine.createVirtualList();
+			state.list.startIndex = 0;
+			state.list.pageSize = pageSize;
+		});
+		
+		engine.on("ClearHeroes", () => {
+			data.heroes = [];
+		});
+		
+		engine.on("AddHero", hero => {
+			data.heroes.push(hero);
+		});
+		
+		engine.on("FinalizeHeroes", () => {
+			data.nextDisabled = heroes.length <= pageSize;
+			
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		});
+		
+		engine.on("SetHeroes", heroes => {
+			console.log("Setting heroes");
+			
+			data.heroes = heroes;
+			
+			console.log("Updating next button", heroes.length);
+			data.nextDisabled = heroes.length <= pageSize;
+			
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		})
+		
+		function nextPage() {
+			if(state.list.startIndex + state.list.pageSize < data.heroes.length) {
+				state.list.startIndex += state.list.pageSize;
+				
+				if(state.list.startIndex + state.list.pageSize >= data.heroes.length) {
+					data.nextDisabled = true;
+				}
+				
+				if(state.list.startIndex > 0) {
+					data.prevDisabled = false;
+				}
+			}
+			
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		}
+		
+		function prevPage() {
+			if(state.list.startIndex - state.list.pageSize >= 0) {
+				state.list.startIndex -= state.list.pageSize;
+				
+				if(state.list.startIndex === 0) {
+					data.prevDisabled = true;
+				}
+				
+				if(state.list.startIndex + state.list.pageSize < data.heroes.length) {
+					data.nextDisabled = false;
+				}
+			}
+			engine.updateWholeModel(data);
+			engine.synchronizeModels()
+		}
+		
+		function selectHero(hero) {
+			if(!hero.mia && !hero.assignedRoom) {
+				Crayta.callLua("SelectHeroForRoom", hero.id)
+			}
+			
+		}
+	
+		engine.createJSModel("data", {
+			scrollPos: 0,
+			nextDisabled: true,
+			prevDisabled: true,
+			heroes: [
+				{ name: "Test", weight: 1, imageUrl: "", mia: true },
+				{ name: "Test", weight: 1, imageUrl: "", assignedRoom: "Test Room" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+				{ name: "Test", weight: 1, imageUrl: "" },
+			]
+		})
+		
+		
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+		
+		engine.on("LocalOnButtonPressed", function(btn) {
+			if(btn === "extra2") {
+				Crayta.callLua("CloseSelectionWidget")
+			}
+			
+		})
+	</script>
+</body>
+
+</html>

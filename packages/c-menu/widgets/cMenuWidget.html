@@ -1,0 +1,155 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="instructions" type="text" editable="false"></property>
+		<property name="backgroundColor" type="color"></property>
+		<property name="borderColor" type="color"></property>
+		<property name="titleColor" type="color"></property>
+		<property name="font" type="string" default="Montserrat"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		@font-face {
+			font-family: PressStart2P;
+			src: url(https://content.crayta.com/fonts/PressStart2P-Regular.ttf);
+			font-weight: 400; 
+			font-style: normal
+		}
+		
+		
+		@font-face {
+		   font-family: 'Font Awesome';
+		   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+		}
+		
+		.fa {
+			font-family: "Font Awesome";
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: flex-end;
+		}
+		
+		.container {
+			height: 100%;
+			width: 100%;
+			display: flex;
+			justify-content: flex-end;
+			align-items: flex-end;
+		}
+		
+		.option {
+			font-size: 4rem;
+			width: 10vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			background-color: #FF7518;
+			border-width: 1px;
+			border-top-width: 4px;
+			border-style: solid;
+		}
+		
+		.option.last {
+			border-top-right-radius: 20px;
+			border-right-width: 4px;
+		}
+		
+		.option.first {
+			border-top-left-radius: 20px;
+			border-left-width: 4px;
+		}
+		
+		.option:hover {
+			filter: hue-rotate(45deg);
+		}
+		
+		.options {
+			height: 10vh;
+			display: flex;
+		}
+		
+		.instructions {
+			position: absolute;
+			bottom: 8rem;
+			right: 1.5rem;
+			font-size: 2.5rem;
+			color: white;
+			opacity: 0.5;
+			text-shadow: 0 0 10px black;
+		}
+	</style>
+</head>
+
+<body data-bind-style-font-family="{{properties.font}}">
+	<div class="container">
+		<div class="options">
+			<div data-bind-for="i,option:{{data}}.options">
+				<div 
+					class="fa option" 
+					data-bind-html="{{option}}.icon" 
+					data-bind-click="openMenuOption({{option}})"
+					data-bind-style-background-color="{{properties}}.titleColor"
+					data-bind-style-border-color="{{properties}}.borderColor"
+					data-bind-class-toggle="first:{{i}} === 0;last:{{i}} === {{data}}.options.length - 1"
+				></div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="instructions" data-bind-html="{{properties}}.instructions"></div>
+	<script>
+	
+		class StyleBorderColorHandler {
+			update(element, value) {
+				element.style.borderColor = value;
+			}
+		}
+	
+		engine.registerBindingAttribute("style-border-color", StyleBorderColorHandler);
+		
+		engine.createJSModel("data", {
+			options: [
+				{ name: "test", icon: "&#xf290;" },
+				{ name: "test", icon: "&#xf290;" },
+			]
+		})
+		
+		function openMenuOption(menuOption) {
+			Crayta.callLua("ToggleMenuOption", menuOption.name)
+		}
+		
+		engine.on("LocalOnButtonPressed", btn => {
+			if(btn === "extra5") {
+				Crayta.callLua("DisableCursor")
+			}
+		})
+
+	</script>
+</body>
+
+</html>

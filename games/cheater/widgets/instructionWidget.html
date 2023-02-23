@@ -1,0 +1,90 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="World"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="signTitle" type="text"></property>
+		<property name="signText" type="text"></property>
+		
+		<property name="titleSize" type="number" default="4"></property>
+		<property name="textSize" type="number" default="2"></property>
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: GloriaHallelujah;
+			src: url('https://content.crayta.com/fonts/GloriaHallelujah-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-family: NotoSans;
+		}
+
+		.sign {
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			font-size: 10rem;
+			color: black;
+			font-family: GloriaHallelujah;
+		}
+
+		span {
+			font-family: GloriaHallelujah;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="sign">
+		<h1 data-bind-value="{{properties.signTitle}}" data-bind-style-font-size="{{properties.titleSize}} + 'rem'"></h1>
+		<div data-bind-value="{{properties.signText}}" data-bind-style-font-size="{{properties.textSize}} + 'rem'"></div>
+	</div>
+
+	<script>
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

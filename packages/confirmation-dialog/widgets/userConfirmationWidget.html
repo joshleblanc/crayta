@@ -1,0 +1,299 @@
+<html>
+	<head>
+		<!-- Required includes -->
+		<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+		<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+		     The name/value fields should match the names displayed in the property editor for this widget -->
+		<default-asset-properties>
+			<default-asset-property name="type" value="Screen" />
+			<default-asset-property name="visible" value="true" />
+			<default-asset-property name="requiresCursor" value="false" />
+		</default-asset-properties>
+
+		<style type="text/css">
+			@font-face {
+				font-family: ConcertOne;
+				src: url('https://content.crayta.com/fonts/ConcertOne-Regular.ttf');
+				font-weight: 400;
+			}
+			
+			@font-face {
+				font-family: PressStart2P;
+				src: url(https://content.crayta.com/fonts/PressStart2P-Regular.ttf);
+				font-weight: 400; 
+				font-style: normal
+			}
+			
+			@font-face {
+				font-family: Montserrat;
+				src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+				font-weight: 400;
+				/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+			}
+			
+			body {
+				height: 100vh;
+				width: 100vw;
+				overflow: hidden;
+				font-family: PressStart2P;
+			}
+			
+			.options--container {
+				position: absolute;
+				width: 40vw;
+				border: 6px solid black;
+				padding: 64px;
+				height: 70vh;
+				top: 30vh;
+				background-color: white;
+				display: flex;
+			}
+			
+			.options {
+				width: 100%;
+				max-height: 450px;
+				overflow-y: auto;
+				flex: 1;
+			}
+			
+			.option {
+				font-size: 3rem;
+				color: black;
+				padding-left: 32px;
+				padding-top: 8px;
+				padding-bottom: 8px;
+			}
+			
+			.option--selected {
+				background-color: black;
+				color: white;
+			}
+			
+			.message {
+				height: 22vh;
+				top: 78vh;
+				position: absolute;
+				width: 100vw;
+				background-color: white;
+				border: 6px solid black;
+
+				z-index: 3;
+				font-size: 2.5rem;
+				color: black;
+				padding-top: 16px;
+				padding-left: 32px;
+				
+				line-height: 3.5rem;
+				
+				white-space: pre;
+			}
+			
+			.message > span {
+				margin-top: 1rem;
+			}
+			
+			.message--background-orange {
+				top: 73vh;
+				transform: rotate(2deg);
+				margin-left: 52px;
+				background-image: linear-gradient(to right, #FFB216, #FF5700);
+				z-index: 2;
+			}
+			
+			.message--background-yellow {
+				transform: rotate(4deg);
+				top: 73vh;
+				margin-left: 92px;
+				background-image: linear-gradient(to right, #FFF524, #FFF523);
+				width: 93vw;
+				z-index: 1;
+			}
+			
+			.message__caret {
+				margin-right: 32px;
+			}
+			
+			.message--highlight {
+				color: #98BA65;
+			}
+			
+			.scrollbar {
+				height: 100%;
+			}
+			
+			.scrollbar--handle {
+				background-color: rgb(168, 158, 136);
+				width: 20px;
+				height: 40px;
+
+				position: relative;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- YOUR HTML CODE HERE -->
+		<div class="options--container" data-bind-if="{{data}}.options.length > 0">
+			<div class="options" id="list">
+				<div 
+					class="option" 
+					data-bind-for="i,option:{{data.options}}" 
+					data-bind-value="{{option}}.label" 
+					data-bind-mouseenter="handleMouseEnter(event)" 
+					data-bind-click="handleClick({{i}})"
+				>
+					
+				</div>
+			</div>
+			<div class="scrollbar" data-bind-if="{{data}}.options.length > 2">
+				<div class="scrollbar--handle" id="scrollbar-handle"></div>
+			</div>
+		</div>
+		
+		
+		<span class="message">
+			<span class="message__caret">></span> 
+			<span data-bind-html="{{data.message}}">
+			
+			</span>
+		</span>
+
+		<script>
+						/* YOUR JAVASCRIPT CODE HERE */
+			
+			const list = document.querySelector("#list");
+			const handle = document.querySelector("#scrollbar-handle");
+			let controllerMode = false;
+			let handleHeight = 0;
+			
+						
+			function handleClick(index) {
+				Crayta.callLua("Respond", data.options[index].value)
+			}
+			
+			function handleMouseEnter(e) {
+				console.log("handling mouse enter")
+				controllerMode = false;
+				select(e.target);
+			}
+
+			// A model to store data in for your widget
+			engine.createJSModel('data',
+			{
+				message: "Will you purchase <span class='message--highlight'>Cool Trunks<\/span>? 123 123 123123  213 123 13 123",
+				options: [
+					{ label: "Yes", value: true }, 
+					{ label: "No", value: false },
+					{ label: "Test", value: false },
+					{ label: "Test 2", value: false },
+					{ label: "Test 3", value: false },
+					{ label: "Test 3", value: false }
+				]
+			});
+			
+			let selectedIndex = 0;
+			
+			getOptions().forEach(o => {
+				o.addEventListener("mouseenter", e => {
+					
+				});
+				o.addEventListener("click", e => {
+					
+				});
+			});
+			
+			
+			list.addEventListener("scroll", function(e) {
+				console.log("Scrolling", e.target.scrollTop.toString(), handleHeight.toString());
+				
+				if(data.disabled) return;
+				
+				controllerMode = false;
+				handle.style.top = `${e.target.scrollTop * handleHeight}px`;
+			})
+			
+			function getOptions() {
+				return Array.from(document.querySelectorAll(".option"));
+			}
+			
+			function select(option) {
+				
+				Crayta.callLua("Select")
+				getOptions().forEach((o, i) => {
+					if(o === option) {
+						selectedIndex = i;
+					}
+					o.classList.remove("option--selected");
+				});
+				console.log("Selecting", selectedIndex.toString());
+				option.classList.add("option--selected");
+				
+				if(controllerMode) {	
+					const cursorBottom = (selectedIndex + 1) * option.offsetHeight;
+					const cursorTop = selectedIndex * option.offsetHeight;
+					console.log(cursorBottom.toString(), list.offsetHeight.toString(), list.scrollTop.toString());
+					if((cursorBottom >= list.offsetHeight + list.scrollTop)) {
+						list.scrollTop = (cursorTop - list.offsetHeight) + option.offsetHeight;
+						handle.style.top = `${list.scrollTop * handleHeight}px`;
+					} else if(cursorTop < list.scrollTop) {
+						list.scrollTop = (cursorTop - list.offsetHeight) + option.offsetHeight;
+						handle.style.top = `${list.scrollTop * handleHeight}px`;
+					}
+				}
+			}
+			
+			engine.on("Reset", () => {
+				data.options = [];
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();
+			});
+			
+			engine.on("AddOption", (label, value) => {
+				data.options.push({ label, value })
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();			
+			});
+			
+			engine.on("LocalOnButtonPressed", btn => {
+				if(btn === "forward") {
+					controllerMode = true;
+					selectedIndex -= 1;
+					if(selectedIndex < 0) {
+						selectedIndex = getOptions().length - 1;
+					}
+					select(getOptions()[selectedIndex])
+				}
+				if(btn === "backward") {
+					controllerMode = true;
+					selectedIndex += 1;
+					if(selectedIndex > getOptions().length - 1) {
+						selectedIndex = 0;
+					}
+					select(getOptions()[selectedIndex])
+				}
+				if(btn === "jump") {
+					Crayta.callLua("Respond", data.options[selectedIndex].value)
+				}
+			})
+			
+			engine.on("SelectDefault", () => {
+				selectedIndex = 0;
+				select(getOptions()[0]);
+			});
+			
+			requestAnimationFrame(function() {
+				const items = getOptions();
+				
+				const totalSize = list.scrollHeight;
+				const visibleSize = list.offsetHeight;
+				handleHeight = visibleSize / totalSize;
+				
+				const adjustedSize = visibleSize * handleHeight;
+				
+				handle.style.height = `${adjustedSize}px`;
+			});
+			
+		</script>
+	</body>
+</html>

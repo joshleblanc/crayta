@@ -1,0 +1,270 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+	</default-asset-properties>
+
+	<!-- Set some custom properties on this widget, which will appear in the property editor for this widget
+	     Custom properties can be used in data bindings using the format {{properties.<<property name>>}} -->
+	<properties>
+		<property name="fullNotificationsDelay" type="number" default="5"></property>
+		<property name="backgroundColor" type="color"></property>
+		<property name="borderColor" type="color"></property>
+		<property name="debug" type="boolean"></property>
+		
+	</properties>
+
+	<style type="text/css">
+		/* Font reference: https://developer.crayta.com/using-fonts-in-crayta/ */
+		@font-face {
+			font-family: Montserrat;
+			src: url('https://content.crayta.com/fonts/Montserrat-Regular.ttf');
+			font-weight: 400;
+			/* 400 = Regular, 500 = Medium, 600 = Semi-bold, 700 = bold */
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.container {
+			height: 100%;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+		}
+		
+		.image {
+			height: 60px;
+			width: 60px;
+			background-size: cover;
+			background-repeat: no-repeat;
+			margin-left: 0.5rem;
+			position: relative;
+		}
+		
+		.quantity {
+			position: absolute;
+			right: 2px;
+			bottom: 2px;
+			color: white;
+			text-shadow: 0 0 5px black;
+			font-size: 0.5rem;
+		}
+		
+		.text-container {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			margin-left: 1rem;
+		}
+		
+		.title {
+			font-size: 1rem;
+		}
+		
+		.subtitle {
+			font-size: 0.75rem;
+			color: rgba(0, 0, 0, 0.75);
+		}
+		
+		.notification {
+			font-size: 2rem;
+			border: 2px solid brown;
+			height: 75px;
+			display: flex;
+			align-items: center;	
+			border-left-width: 4px;
+		}
+		
+		.notification.new:last-child {
+			animation: 0.5s ease 0s slidein forwards;
+			transform: translateX(100%);
+		}
+		
+		.notification.deleted {
+			animation: 0.5s ease 0s slideout forwards;
+		}
+		
+		@keyframes slideout {
+			from {
+				transform: translateX(0%);
+			}
+			to {
+				transform: translateX(100%);
+			}
+		}
+		
+		@keyframes slidein {
+			from {
+				transform: translateX(100%);
+			}
+			to {
+				transform: translateX(0%);
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<div 
+			class="notification" 
+			data-bind-for="i,notif:{{data}}.notifications" 
+			data-bind-click="removeElement({{i}})"
+			data-bind-class-toggle="deleted:{{notif}}.deleted;new:{{notif}}.new"
+			data-bind-style-border-color="{{properties}}.borderColor"
+			data-bind-style-border-left-color="{{notif}}.accent || {{properties}}.borderColor"
+			data-bind-style-background-color="{{properties}}.backgroundColor"
+		>
+			<div class="image" data-bind-style-background-image-url="{{notif}}.imageUrl" data-bind-if="!!{{notif}}.imageUrl">
+				<div class="quantity" data-bind-value="{{notif}}.quantity" data-bind-if="!!{{notif}}.quantity"></div>
+			</div>
+			<div class="text-container">
+				<div class="title" data-bind-value="{{notif}}.title" data-bind-if="!!{{notif}}.title"></div>
+				<div class="subtitle" data-bind-value="{{notif}}.subtitle" data-bind-if="!!{{notif}}.subtitle"></div>
+			</div>
+		</div>
+	</div>
+	
+
+	<script>
+		class StyleBorderColorHandler {
+			update(element, value) {
+				element.style.borderColor = value;
+			}
+		}
+	
+		
+		class StyleBorderLeftColorHandler {
+			update(element, value) {
+				element.style.borderLeftColor = value;
+			}
+		}
+	
+		engine.registerBindingAttribute("style-border-color", StyleBorderColorHandler);
+		engine.registerBindingAttribute("style-border-left-color", StyleBorderLeftColorHandler);
+	
+		let fullCounter = 0;
+		let lastTime = new Date();
+		
+		engine.createJSModel("data", {
+			notifications: []
+		})
+		
+		function addDebugMessage() {
+			addNotification({ accent: "#ff0000", title: Math.random() + "", quantity: 10 });		
+		}
+		
+		engine.on("Ready", () => {
+			if(properties.debug) {
+				for (let i = 0; i < 3; i++) {
+					addDebugMessage();
+				}
+				setInterval(() => {
+					//addDebugMessage();
+				}, 3000);
+			}
+		});
+		
+		function removeElement(index) {
+			const ref = data.notifications[index];
+			data.notifications[index].deleted = true;
+			setTimeout(() => {
+				data.notifications = data.notifications.filter(n => n !== ref);
+				fullCounter = 0;
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();
+			}, 500);
+			
+			
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		}
+		
+		const queue = [];
+		
+		engine.on("addNotification", addNotification);
+		
+		function addNotification(data) {
+			queue.push(data);
+		}
+		
+		function processQueue() {
+			const containerRect = document.querySelector(".container").getBoundingClientRect();
+			const notification = document.querySelector(".notification")
+			const notificationRect = notification && notification.getBoundingClientRect();
+			
+			let numSlots = 1;
+			if(notificationRect) {
+				numSlots = Math.floor((containerRect.height / notificationRect.height));
+			}
+			
+			const currentTime = new Date();
+			const dt = currentTime - lastTime;
+			lastTime = currentTime;
+			
+			
+			if(data.notifications.length < numSlots && queue.length > 0) {
+				const d = { ...queue.pop(), addedAt: new Date(), new: true }
+				data.notifications.push(d);
+				setTimeout(() => {
+					d.new = false;
+				})
+				engine.updateWholeModel(data);
+				engine.synchronizeModels();
+				
+				fullCounter = 0;
+			}
+			
+			if(data.notifications.length > 0 && queue.length === 0) {
+				fullCounter = fullCounter + dt;
+			} else if(data.notifications.length >= numSlots) {
+				fullCounter = fullCounter + dt;
+			}
+		
+			
+			if(data.notifications[0] && fullCounter / 600 > properties.fullNotificationsDelay) {
+				removeElement(0)
+			}
+			
+			requestAnimationFrame(processQueue);
+		}
+		
+		requestAnimationFrame(processQueue);
+		
+		/*
+		* You can manipulate widget properties from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.properties.text = "Some new text";
+		*/
+		engine.on("exampleCoherentFunction", function (text) {
+			properties.signText = text;
+		});
+		
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>

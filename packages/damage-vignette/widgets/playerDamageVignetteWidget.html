@@ -1,0 +1,51 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+		<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+	</default-asset-properties>
+	
+	<properties>
+		<property name="active" type="boolean" default="false"></property>
+	</properties>
+
+	<style type="text/css">
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.container {
+			position: fixed;
+		 	top: 0;
+			left: 0;
+			width: 100%;
+		    height: 100%;
+		    box-shadow: 0;
+		    transition: box-shadow 1s ease-in;
+		}
+		
+		.active {
+			box-shadow: 0 0 200px rgba(255,0,0,0.9) inset;
+			transition: box-shadow 0.1s ease-out;
+		}
+		
+	</style>
+</head>
+
+<body>
+
+	<div class="container" data-bind-class-toggle="active:{{properties.active}}">
+
+	</div>
+</body>
+
+</html>

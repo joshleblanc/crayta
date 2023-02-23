@@ -1,0 +1,238 @@
+<html>
+
+<head>
+	<!-- Required includes -->
+	<script type="text/javascript" src="coui://uiresources/js/crayta.js"></script>
+
+	<!-- Set default values to be applied to this widget when it's added to a new entity in the world
+    The name/value fields should match the names displayed in the property editor for this widget -->
+	<default-asset-properties>
+		<default-asset-property name="type" value="Screen"></default-asset-property>
+		<default-asset-property name="visible" value="true"></default-asset-property>
+		<default-asset-property name="requiresCursor" value="false"></default-asset-property>
+	</default-asset-properties>
+
+	<style type="text/css">
+			@font-face {
+			font-family: Barlow;
+			src: url(https://content.crayta.com/fonts/Barlow-Black.ttf);
+			font-weight: 400; 
+			font-style: normal
+		}
+		
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-family: Barlow;
+		}
+		
+		@font-face {
+		   font-family: 'Font Awesome';
+		   src: url('https://content.crayta.com/fonts/FontAwesome5-Solid.ttf');
+		}
+		.fa {
+		   font-family: 'Font Awesome';
+		}
+		
+		.container {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+		}
+
+		.inner-container {
+			width: 50%;
+			height: 35%;
+			display: flex;
+			align-items: center;
+			padding: 1rem;
+			position: relative;
+			border-image: url("https://live.content.crayta.com/ui_image/8efb53d8-b5e1-4b07-9a6d-eddad7376039_ui_image");
+			border-image-slice: 0 fill;
+		}
+		
+		.green-bar {
+			background-color: #35DAAB;
+			width: 90%;
+			height: 100%;
+			z-index: -1;
+		}
+		
+		.purple-bar {
+			background-color: #B298FC;
+			flex: 1;
+			height: 100%;
+			z-index: -1;
+		}
+		
+		.indicator {
+			width: 0;
+			height: 0;
+			position: absolute;
+			left: 90%;
+			margin-left: 1rem;
+			transform: translate(-50%, 50%) rotate(180deg);
+			background-size: contain;
+			transition: transform 1s, height 1s, width 1s;
+		}
+		
+		.indicator.active {
+			transform: translate(-50%, 50%) rotate(540deg);
+			width: 80px;
+			height: 80px;
+			transition: transform 1s, height 1s, width 1s;
+		}
+		
+		.arrow-left {
+			position: absolute;
+			color: white;
+			left: -2rem;
+			font-size: 2rem;
+			color: #B298FC;
+			animation: move-left 2s linear infinite;
+			animation-timing-function:steps(1);
+			transform: translate(-150%, 110%);
+		}
+		
+		.arrow-right {
+			position: absolute;
+			color: white;
+			font-size: 2rem;
+			color: #35DAAB;
+			animation: move-right 2s linear infinite;
+			animation-timing-function:steps(1);
+			transform: translate(-150%, 110%);
+		}
+		
+		.contested-message {
+			position: absolute;
+			bottom: 0;
+			left: 50%;
+			transform: translate(-50%, 100%);
+			text-align: center;
+			text-shadow: 1px 2px black;
+			font-size: 3rem;
+			color: red;
+			margin-left: 1rem;
+		}
+		
+		@keyframes move-left {
+			0% {
+				transform: translate(-150%, 110%);
+			}
+			
+			33% {
+				transform: translate(-200%, 110%);
+			}
+			
+			66% {
+				transform: translate(-250%, 110%);
+			}
+		}
+		
+		@keyframes move-right {
+			0% {
+				transform: translate(200%, 110%);
+			}
+			
+			33% {
+				transform: translate(250%, 110%);
+			}
+			
+			66% {
+				transform: translate(300%, 110%);
+			}
+		}
+		</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="inner-container">
+			<div class="arrow-left fa" data-bind-if="{{data}}.owner == 2 && !{{data}}.contested" data-bind-style-left="{{data.progress}}" >&#xf053;</div>
+			<div class="contested-message" data-bind-if="{{data}}.contested">
+				Payload Contested
+			</div>
+			<div 
+				class="indicator" 
+				data-bind-style-left="{{data.progress}}" 
+				data-bind-style-background-image-url="{{data.indicatorIcon}}" 
+				data-bind-class-toggle="active:!!({{data.active}} && !{{data.contested}})"
+			></div>
+			<div class="green-bar" data-bind-style-width="{{data.progress}}"></div>
+			<div class="purple-bar"></div>
+			<div class="arrow-right fa" data-bind-if="{{data}}.owner == 1 && !{{data}}.contested" data-bind-style-left="{{data.progress}}" >&#xf054;</div>
+		</div>
+	</div>
+	
+
+	<script>
+		/*
+		setInterval(() => {
+			if(data.indicatorIcon) {
+				data.indicatorIcon = null;
+
+			} else {
+				data.indicatorIcon = "https://live.content.crayta.com/ui_image/bdf23712-e769-4adb-bf17-2c52e12a6218_ui_image"
+			}
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		}, 1000);
+		/*
+		/*
+		* Data models allow the widget to use data passed in via Lua to alter display in real-time
+		* e.g. <h1 data-bind-value="{{data.title}}">
+		*/
+		engine.createJSModel('data',
+		{
+			progress: "50%",
+			indicatorIcon: "https://live.content.crayta.com/ui_image/fa78d113-161a-4023-a843-b937d7591269_ui_image"	,
+			active: true,
+			owner: 2,
+			contested: true
+		});
+
+		/*
+		* You can manipulate model data from Lua either through a Coherent function:
+		* e.g. self:GetEntity().exampleWidget.js:CallFunction("exampleCoherentFunction", "Some new text")
+		* 
+		* or directly, via:
+		* self:GetEntity().exampleWidget.js.data.texts = "Some new text";
+		*/
+		engine.on("UpdateIcon", function (owner, num1, num2) {
+			if(num1 > 0 && num2 > 0) {
+				data.contested = true;
+			} else {
+				data.contested = false;
+			}
+			if(owner === 1) { 
+				data.indicatorIcon = "https://live.content.crayta.com/ui_image/fa78d113-161a-4023-a843-b937d7591269_ui_image"	
+				data.active = true;
+			} else if(owner === 2) { 
+				data.indicatorIcon = "https://live.content.crayta.com/ui_image/bdf23712-e769-4adb-bf17-2c52e12a6218_ui_image"
+				data.active = true;
+			} else {
+				data.active = false;
+			}
+			data.owner = owner;
+			engine.updateWholeModel(data);
+			engine.synchronizeModels();
+		});
+
+
+		/*
+		* You can also trigger Lua functions in game scripts on this entity by using `callLua`
+		* You can bind an element to trigger a function like:
+		* <button onclick="window.exampleTriggerLuaFunction(event, 'Some Data')">
+		*/
+		function exampleTriggerLuaFunction(event, data) {
+			// You can pass any data to the Lua function by adding it to the end
+			Crayta.callLua("myLuaFunction", data);
+		}
+	</script>
+</body>
+
+</html>
